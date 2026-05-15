@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Álbum Copa - Figurinhas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8b1538, #6b0f2b);
+            padding: 16px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .header .stats {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #16213e;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            border-bottom-color: #e94560;
+            color: #e94560;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 16px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Scanner Tab */
+        .scanner-area {
+            text-align: center;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #e94560, #c23152);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 12px 8px;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .upload-btn:active {
+            transform: scale(0.95);
+        }
+
+        #preview-container {
+            margin: 16px 0;
+            display: none;
+        }
+
+        #preview-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            border: 2px solid #0f3460;
+        }
+
+        .ocr-status {
+            margin: 12px 0;
+            padding: 12px;
+            border-radius: 8px;
+            background: #16213e;
+            font-size: 0.9rem;
+        }
+
+        .ocr-result {
+            margin: 16px 0;
+            padding: 16px;
+            background: #16213e;
+            border-radius: 12px;
+            border: 1px solid #0f3460;
+        }
+
+        .ocr-result h3 {
+            margin-bottom: 8px;
+            color: #e94560;
+        }
+
+        .detected-numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .detected-number {
+            background: #0f3460;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .detected-number:hover,
+        .detected-number.selected {
+            border-color: #e94560;
+            background: #1a3a6e;
+        }
+
+        .detected-number.owned {
+            background: #1b4332;
+            border-color: #2d6a4f;
+        }
+
+        /* Manual Add */
+        .manual-add {
+            margin-top: 20px;
+            padding: 16px;
+            background: #16213e;
+            border-radius: 12px;
+        }
+
+        .manual-add h3 {
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .form-row select,
+        .form-row input {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        .btn-add {
+            background: #2d6a4f;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-remove {
+            background: #c23152;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Album Tab */
+        .country-section {
+            margin-bottom: 16px;
+            background: #16213e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .country-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            background: #0f3460;
+        }
+
+        .country-header h3 {
+            font-size: 0.95rem;
+        }
+
+        .country-header .count {
+            font-size: 0.8rem;
+            background: #e94560;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+
+        .country-numbers {
+            display: none;
+            padding: 12px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .country-numbers.open {
+            display: flex;
+        }
+
+        .sticker-num {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sticker-num.owned {
+            background: #2d6a4f;
+            color: #fff;
+        }
+
+        .sticker-num.missing {
+            background: #333;
+            color: #666;
+            border: 1px dashed #555;
+        }
+
+        /* Faltantes Tab */
+        .missing-list {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .missing-country {
+            margin-bottom: 12px;
+        }
+
+        .missing-country h4 {
+            color: #e94560;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .missing-nums {
+            font-size: 0.85rem;
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        /* Export/Import */
+        .data-section {
+            margin-top: 16px;
+            padding: 16px;
+            background: #16213e;
+            border-radius: 12px;
+        }
+
+        .data-section h3 {
+            margin-bottom: 12px;
+        }
+
+        .btn-export, .btn-import, .btn-reset {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .btn-export {
+            background: #0f3460;
+            color: #fff;
+        }
+
+        .btn-import {
+            background: #2d6a4f;
+            color: #fff;
+        }
+
+        .btn-reset {
+            background: #c23152;
+            color: #fff;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #2d6a4f);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d6a4f;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .bulk-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 0.95rem;
+            min-height: 60px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚽ Álbum Copa 2022</h1>
+        <div class="stats" id="global-stats">Carregando...</div>
+        <div class="progress-bar"><div class="fill" id="progress-fill"></div></div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" data-tab="scanner">📷 Scanner</div>
+        <div class="tab" data-tab="album">📖 Álbum</div>
+        <div class="tab" data-tab="missing">❌ Faltantes</div>
+        <div class="tab" data-tab="data">💾 Dados</div>
+    </div>
+
+    <div class="tab-content active" id="tab-scanner">
+        <div class="scanner-area">
+            <p style="margin-bottom: 12px; opacity: 0.8;">Tire uma foto das figurinhas ou selecione da galeria</p>
+            <button class="upload-btn" onclick="document.getElementById('camera-input').click()">
+                📷 Câmera
+            </button>
+            <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+                🖼️ Galeria
+            </button>
+            <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleImage(this)">
+            <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleImage(this)">
+        </div>
+
+        <div id="preview-container">
+            <img id="preview-img" alt="Preview">
+        </div>
+
+        <div class="ocr-status" id="ocr-status" style="display:none;"></div>
+
+        <div class="ocr-result" id="ocr-result" style="display:none;">
+            <h3>Números detectados:</h3>
+            <div class="detected-numbers" id="detected-numbers"></div>
+            <div style="margin-top: 12px;">
+                <select id="ocr-country" style="padding: 8px; border-radius: 8px; background: #1a1a2e; color: #fff; border: 1px solid #0f3460; width: 100%; margin-bottom: 8px;"></select>
+                <button class="btn-add" onclick="addDetectedNumbers()" style="width: 100%;">✅ Adicionar selecionados ao álbum</button>
+            </div>
+        </div>
+
+        <div class="manual-add">
+            <h3>➕ Adicionar manualmente</h3>
+            <div class="form-row">
+                <select id="manual-country"></select>
+            </div>
+            <div class="form-row">
+                <input type="text" id="manual-numbers" placeholder="Números (ex: 1, 5, 12, 45)">
+            </div>
+            <div class="form-row">
+                <button class="btn-add" onclick="addManual()">Adicionar</button>
+                <button class="btn-remove" onclick="removeManual()">Remover</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-album">
+        <input type="text" class="search-box" placeholder="🔍 Buscar país..." oninput="filterAlbum(this.value)">
+        <div id="album-list"></div>
+    </div>
+
+    <div class="tab-content" id="tab-missing">
+        <div id="missing-summary" style="margin-bottom: 12px; font-size: 0.9rem; opacity: 0.8;"></div>
+        <div class="missing-list" id="missing-list"></div>
+    </div>
+
+    <div class="tab-content" id="tab-data">
+        <div class="data-section">
+            <h3>📤 Exportar / Importar</h3>
+            <button class="btn-export" onclick="exportData()">Exportar JSON</button>
+            <button class="btn-import" onclick="document.getElementById('import-input').click()">Importar JSON</button>
+            <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(this)">
+            <button class="btn-export" onclick="copyMissing()" style="margin-top: 8px; background: #0f3460;">📋 Copiar lista de faltantes</button>
+            <button class="btn-reset" onclick="resetData()">🗑️ Resetar tudo</button>
+        </div>
+
+        <div class="data-section" style="margin-top: 16px;">
+            <h3>📊 Estatísticas</h3>
+            <div id="detailed-stats"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script>
+
+    // ==================== DADOS DO ÁLBUM COPA 2022 ====================
+    const ALBUM_STRUCTURE = {
+        "FWC": { name: "FIFA World Cup", range: [1, 29] },
+        "QAT": { name: "Qatar", range: [1, 20] },
+        "ECU": { name: "Equador", range: [1, 20] },
+        "SEN": { name: "Senegal", range: [1, 20] },
+        "NED": { name: "Holanda", range: [1, 20] },
+        "ENG": { name: "Inglaterra", range: [1, 20] },
+        "IRN": { name: "Irã", range: [1, 20] },
+        "USA": { name: "Estados Unidos", range: [1, 20] },
+        "WAL": { name: "País de Gales", range: [1, 20] },
+        "ARG": { name: "Argentina", range: [1, 20] },
+        "KSA": { name: "Arábia Saudita", range: [1, 20] },
+        "MEX": { name: "México", range: [1, 20] },
+        "POL": { name: "Polônia", range: [1, 20] },
+        "FRA": { name: "França", range: [1, 20] },
+        "AUS": { name: "Austrália", range: [1, 20] },
+        "DEN": { name: "Dinamarca", range: [1, 20] },
+        "TUN": { name: "Tunísia", range: [1, 20] },
+        "ESP": { name: "Espanha", range: [1, 20] },
+        "CRC": { name: "Costa Rica", range: [1, 20] },
+        "GER": { name: "Alemanha", range: [1, 20] },
+        "JPN": { name: "Japão", range: [1, 20] },
+        "BEL": { name: "Bélgica", range: [1, 20] },
+        "CAN": { name: "Canadá", range: [1, 20] },
+        "MAR": { name: "Marrocos", range: [1, 20] },
+        "CRO": { name: "Croácia", range: [1, 20] },
+        "BRA": { name: "Brasil", range: [1, 20] },
+        "SRB": { name: "Sérvia", range: [1, 20] },
+        "SUI": { name: "Suíça", range: [1, 20] },
+        "CMR": { name: "Camarões", range: [1, 20] },
+        "POR": { name: "Portugal", range: [1, 20] },
+        "GHA": { name: "Gana", range: [1, 20] },
+        "URU": { name: "Uruguai", range: [1, 20] },
+        "KOR": { name: "Coreia do Sul", range: [1, 20] }
+    };
+
+    // ==================== STATE ====================
+    let albumData = loadData();
+
+    function loadData() {
+        const saved = localStorage.getItem('album-copa-2022');
+        if (saved) return JSON.parse(saved);
+        // Inicializa vazio
+        const data = {};
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            data[code] = [];
+        }
+        return data;
+    }
+
+    function saveData() {
+        localStorage.setItem('album-copa-2022', JSON.stringify(albumData));
+        updateStats();
+    }
+
+    // ==================== TABS ====================
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+
+            if (tab.dataset.tab === 'album') renderAlbum();
+            if (tab.dataset.tab === 'missing') renderMissing();
+            if (tab.dataset.tab === 'data') renderDetailedStats();
+        });
+    });
+
+    // ==================== STATS ====================
+    function updateStats() {
+        let total = 0, owned = 0;
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            const [start, end] = [info.range[0], info.range[1]];
+            total += (end - start + 1);
+            owned += (albumData[code] || []).length;
+        }
+        document.getElementById('global-stats').textContent = `${owned} / ${total} figurinhas (${Math.round(owned/total*100)}%)`;
+        document.getElementById('progress-fill').style.width = `${(owned/total*100)}%`;
+    }
+
+    // ==================== OCR ====================
+    async function handleImage(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const preview = document.getElementById('preview-container');
+        const img = document.getElementById('preview-img');
+        const status = document.getElementById('ocr-status');
+        const result = document.getElementById('ocr-result');
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+
+        // OCR
+        status.style.display = 'block';
+        status.innerHTML = '<span class="loading-spinner"></span> Processando OCR...';
+        result.style.display = 'none';
+
+        try {
+            const { data } = await Tesseract.recognize(file, 'eng', {
+                logger: m => {
+                    if (m.status === 'recognizing text') {
+                        status.innerHTML = `<span class="loading-spinner"></span> Reconhecendo... ${Math.round(m.progress * 100)}%`;
+                    }
+                }
+            });
+
+            const text = data.text;
+            console.log('OCR Text:', text);
+
+            // Extrair números (figurinhas geralmente são números de 1-3 dígitos)
+            const numbers = extractNumbers(text);
+            // Tentar detectar código do país
+            const detectedCountry = detectCountry(text);
+
+            status.innerHTML = `✅ OCR concluído! Texto: <em>${text.substring(0, 100)}...</em>`;
+            
+            if (numbers.length > 0) {
+                result.style.display = 'block';
+                const container = document.getElementById('detected-numbers');
+                container.innerHTML = '';
+                
+                numbers.forEach(num => {
+                    const el = document.createElement('div');
+                    el.className = 'detected-number selected';
+                    el.textContent = num;
+                    el.onclick = () => el.classList.toggle('selected');
+                    container.appendChild(el);
+                });
+
+                // Set country dropdown
+                const select = document.getElementById('ocr-country');
+                if (detectedCountry) {
+                    select.value = detectedCountry;
+                }
+            } else {
+                status.innerHTML = '⚠️ Nenhum número detectado. Tente com melhor iluminação ou adicione manualmente.';
+            }
+        } catch (err) {
+            status.innerHTML = '❌ Erro no OCR: ' + err.message;
+        }
+
+        input.value = '';
+    }
+
+    function extractNumbers(text) {
+        // Busca números entre 1 e 680 (range típico do álbum)
+        const matches = text.match(/\b\d{1,3}\b/g) || [];
+        const numbers = [...new Set(matches.map(Number).filter(n => n >= 1 && n <= 680))];
+        return numbers.sort((a, b) => a - b);
+    }
+
+    function detectCountry(text) {
+        const upper = text.toUpperCase();
+        for (const code of Object.keys(ALBUM_STRUCTURE)) {
+            if (upper.includes(code)) return code;
+        }
+        // Tentar nome do país
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            if (upper.includes(info.name.toUpperCase())) return code;
+        }
+        return null;
+    }
+
+    function addDetectedNumbers() {
+        const country = document.getElementById('ocr-country').value;
+        const selected = document.querySelectorAll('#detected-numbers .detected-number.selected');
+        const numbers = Array.from(selected).map(el => parseInt(el.textContent));
+
+        if (!country) {
+            showToast('Selecione um país!');
+            return;
+        }
+
+        let added = 0;
+        numbers.forEach(num => {
+            if (!albumData[country].includes(num)) {
+                const [start, end] = ALBUM_STRUCTURE[country].range;
+                if (num >= start && num <= end) {
+                    albumData[country].push(num);
+                    added++;
+                }
+            }
+        });
+
+        albumData[country].sort((a, b) => a - b);
+        saveData();
+        showToast(`${added} figurinha(s) adicionada(s) a ${ALBUM_STRUCTURE[country].name}!`);
+    }
+
+    // ==================== MANUAL ADD/REMOVE ====================
+    function addManual() {
+        const country = document.getElementById('manual-country').value;
+        const input = document.getElementById('manual-numbers').value;
+        const numbers = input.split(/[,\s]+/).map(Number).filter(n => !isNaN(n) && n > 0);
+
+        if (!country || numbers.length === 0) {
+            showToast('Preencha país e números!');
+            return;
+        }
+
+        let added = 0;
+        const [start, end] = ALBUM_STRUCTURE[country].range;
+        numbers.forEach(num => {
+            if (num >= start && num <= end && !albumData[country].includes(num)) {
+                albumData[country].push(num);
+                added++;
+            }
+        });
+
+        albumData[country].sort((a, b) => a - b);
+        saveData();
+        document.getElementById('manual-numbers').value = '';
+        showToast(`${added} figurinha(s) adicionada(s)!`);
+    }
+
+    function removeManual() {
+        const country = document.getElementById('manual-country').value;
+        const input = document.getElementById('manual-numbers').value;
+        const numbers = input.split(/[,\s]+/).map(Number).filter(n => !isNaN(n) && n > 0);
+
+        if (!country || numbers.length === 0) {
+            showToast('Preencha país e números!');
+            return;
+        }
+
+        let removed = 0;
+        numbers.forEach(num => {
+            const idx = albumData[country].indexOf(num);
+            if (idx > -1) {
+                albumData[country].splice(idx, 1);
+                removed++;
+            }
+        });
+
+        saveData();
+        document.getElementById('manual-numbers').value = '';
+        showToast(`${removed} figurinha(s) removida(s)!`);
+    }
+
+    // ==================== ALBUM VIEW ====================
+    function renderAlbum(filter = '') {
+        const container = document.getElementById('album-list');
+        container.innerHTML = '';
+
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            if (filter && !info.name.toLowerCase().includes(filter.toLowerCase()) && !code.toLowerCase().includes(filter.toLowerCase())) {
+                continue;
+            }
+
+            const [start, end] = info.range;
+            const total = end - start + 1;
+            const owned = (albumData[code] || []).length;
+
+            const section = document.createElement('div');
+            section.className = 'country-section';
+
+            const header = document.createElement('div');
+            header.className = 'country-header';
+            header.innerHTML = `
+                <h3>${info.name} (${code})</h3>
+                <span class="count">${owned}/${total}</span>
+            `;
+            header.onclick = () => {
+                const nums = section.querySelector('.country-numbers');
+                nums.classList.toggle('open');
+            };
+
+            const numbers = document.createElement('div');
+            numbers.className = 'country-numbers';
+
+            for (let i = start; i <= end; i++) {
+                const sticker = document.createElement('div');
+                const isOwned = (albumData[code] || []).includes(i);
+                sticker.className = `sticker-num ${isOwned ? 'owned' : 'missing'}`;
+                sticker.textContent = i;
+                sticker.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleSticker(code, i, sticker);
+                };
+                numbers.appendChild(sticker);
+            }
+
+            section.appendChild(header);
+            section.appendChild(numbers);
+            container.appendChild(section);
+        }
+    }
+
+    function toggleSticker(code, num, el) {
+        const idx = albumData[code].indexOf(num);
+        if (idx > -1) {
+            albumData[code].splice(idx, 1);
+            el.className = 'sticker-num missing';
+        } else {
+            albumData[code].push(num);
+            albumData[code].sort((a, b) => a - b);
+            el.className = 'sticker-num owned';
+        }
+        saveData();
+    }
+
+    function filterAlbum(value) {
+        renderAlbum(value);
+    }
+
+    // ==================== MISSING VIEW ====================
+    function renderMissing() {
+        const container = document.getElementById('missing-list');
+        const summary = document.getElementById('missing-summary');
+        container.innerHTML = '';
+        let totalMissing = 0;
+
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            const [start, end] = info.range;
+            const owned = albumData[code] || [];
+            const missing = [];
+
+            for (let i = start; i <= end; i++) {
+                if (!owned.includes(i)) missing.push(i);
+            }
+
+            totalMissing += missing.length;
+
+            if (missing.length > 0 && missing.length < (end - start + 1)) {
+                const div = document.createElement('div');
+                div.className = 'missing-country';
+                div.innerHTML = `
+                    <h4>${info.name} (${code}) - faltam ${missing.length}</h4>
+                    <div class="missing-nums">${missing.join(', ')}</div>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        summary.textContent = `Total de figurinhas faltantes: ${totalMissing}`;
+    }
+
+    // ==================== DATA MANAGEMENT ====================
+    function exportData() {
+        const json = JSON.stringify(albumData, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'album-copa-2022.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('JSON exportado!');
+    }
+
+    function importData(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                albumData = data;
+                saveData();
+                showToast('Dados importados com sucesso!');
+            } catch (err) {
+                showToast('Erro ao importar: arquivo inválido');
+            }
+        };
+        reader.readAsText(file);
+        input.value = '';
+    }
+
+    function copyMissing() {
+        let text = '📋 FIGURINHAS FALTANTES - Copa 2022\n\n';
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            const [start, end] = info.range;
+            const owned = albumData[code] || [];
+            const missing = [];
+            for (let i = start; i <= end; i++) {
+                if (!owned.includes(i)) missing.push(i);
+            }
+            if (missing.length > 0 && missing.length < (end - start + 1)) {
+                text += `${info.name} (${code}): ${missing.join(', ')}\n`;
+            }
+        }
+
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Lista copiada!');
+        }).catch(() => {
+            // Fallback
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('Lista copiada!');
+        });
+    }
+
+    function resetData() {
+        if (confirm('Tem certeza? Isso vai apagar TODAS as suas figurinhas!')) {
+            if (confirm('Última chance! Deseja exportar antes de resetar?')) {
+                exportData();
+            }
+            albumData = {};
+            for (const [code] of Object.entries(ALBUM_STRUCTURE)) {
+                albumData[code] = [];
+            }
+            saveData();
+            showToast('Dados resetados!');
+        }
+    }
+
+    function renderDetailedStats() {
+        const container = document.getElementById('detailed-stats');
+        let total = 0, owned = 0;
+        let html = '<div style="margin-top: 8px;">';
+
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            const [start, end] = info.range;
+            const countryTotal = end - start + 1;
+            const countryOwned = (albumData[code] || []).length;
+            total += countryTotal;
+            owned += countryOwned;
+            const pct = Math.round(countryOwned / countryTotal * 100);
+
+            html += `<div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.85rem; border-bottom: 1px solid #0f3460;">
+                <span>${info.name}</span>
+                <span style="color: ${pct === 100 ? '#2d6a4f' : pct > 50 ? '#e9c46a' : '#e94560'}">${countryOwned}/${countryTotal} (${pct}%)</span>
+            </div>`;
+        }
+
+        html += '</div>';
+        container.innerHTML = `
+            <p style="font-size: 1.1rem; margin-bottom: 8px;"><strong>${owned}</strong> de <strong>${total}</strong> figurinhas</p>
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 12px;">Faltam <strong>${total - owned}</strong> para completar</p>
+            ${html}
+        `;
+    }
+
+    // ==================== UTILS ====================
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function populateCountrySelects() {
+        const selects = ['manual-country', 'ocr-country'];
+        selects.forEach(id => {
+            const select = document.getElementById(id);
+            select.innerHTML = '<option value="">Selecione o país...</option>';
+            for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+                const opt = document.createElement('option');
+                opt.value = code;
+                opt.textContent = `${info.name} (${code})`;
+                select.appendChild(opt);
+            }
+        });
+    }
+
+    // ==================== INIT ====================
+    populateCountrySelects();
+    updateStats();
+    </script>
+</body>
+</html>
