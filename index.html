@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Álbum Copa - Figurinhas</title>
+    <title>Álbum Copa 2026 - Figurinhas</title>
     <style>
         * {
             margin: 0;
@@ -411,7 +411,8 @@
 </head>
 <body>
     <div class="header">
-        <h1>⚽ Álbum Copa 2022</h1>
+        <img src="capa.png" alt="Álbum Copa 2026" style="height: 80px; margin-bottom: 8px; border-radius: 8px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
+        <h1>⚽ Álbum Copa 2026</h1>
         <div class="stats" id="global-stats">Carregando...</div>
         <div class="progress-bar"><div class="fill" id="progress-fill"></div></div>
     </div>
@@ -497,48 +498,70 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
 
-    // ==================== DADOS DO ÁLBUM COPA 2022 ====================
+    // ==================== DADOS DO ÁLBUM COPA 2026 ====================
+    // 980 figurinhas: 9 Intro + 11 FIFA Museum + 48 seleções x 20 cada
     const ALBUM_STRUCTURE = {
-        "FWC": { name: "FIFA World Cup", range: [1, 29] },
-        "QAT": { name: "Qatar", range: [1, 20] },
-        "ECU": { name: "Equador", range: [1, 20] },
-        "SEN": { name: "Senegal", range: [1, 20] },
-        "NED": { name: "Holanda", range: [1, 20] },
-        "ENG": { name: "Inglaterra", range: [1, 20] },
-        "IRN": { name: "Irã", range: [1, 20] },
+        "FWC": { name: "FIFA World Cup (Intro)", range: [1, 9] },
+        "MUS": { name: "FIFA Museum", range: [1, 11] },
         "USA": { name: "Estados Unidos", range: [1, 20] },
-        "WAL": { name: "País de Gales", range: [1, 20] },
-        "ARG": { name: "Argentina", range: [1, 20] },
-        "KSA": { name: "Arábia Saudita", range: [1, 20] },
         "MEX": { name: "México", range: [1, 20] },
-        "POL": { name: "Polônia", range: [1, 20] },
-        "FRA": { name: "França", range: [1, 20] },
-        "AUS": { name: "Austrália", range: [1, 20] },
-        "DEN": { name: "Dinamarca", range: [1, 20] },
-        "TUN": { name: "Tunísia", range: [1, 20] },
-        "ESP": { name: "Espanha", range: [1, 20] },
-        "CRC": { name: "Costa Rica", range: [1, 20] },
-        "GER": { name: "Alemanha", range: [1, 20] },
-        "JPN": { name: "Japão", range: [1, 20] },
-        "BEL": { name: "Bélgica", range: [1, 20] },
         "CAN": { name: "Canadá", range: [1, 20] },
-        "MAR": { name: "Marrocos", range: [1, 20] },
-        "CRO": { name: "Croácia", range: [1, 20] },
+        "ARG": { name: "Argentina", range: [1, 20] },
         "BRA": { name: "Brasil", range: [1, 20] },
-        "SRB": { name: "Sérvia", range: [1, 20] },
-        "SUI": { name: "Suíça", range: [1, 20] },
-        "CMR": { name: "Camarões", range: [1, 20] },
-        "POR": { name: "Portugal", range: [1, 20] },
-        "GHA": { name: "Gana", range: [1, 20] },
         "URU": { name: "Uruguai", range: [1, 20] },
-        "KOR": { name: "Coreia do Sul", range: [1, 20] }
+        "COL": { name: "Colômbia", range: [1, 20] },
+        "ECU": { name: "Equador", range: [1, 20] },
+        "PAR": { name: "Paraguai", range: [1, 20] },
+        "VEN": { name: "Venezuela", range: [1, 20] },
+        "FRA": { name: "França", range: [1, 20] },
+        "ENG": { name: "Inglaterra", range: [1, 20] },
+        "GER": { name: "Alemanha", range: [1, 20] },
+        "ESP": { name: "Espanha", range: [1, 20] },
+        "POR": { name: "Portugal", range: [1, 20] },
+        "NED": { name: "Holanda", range: [1, 20] },
+        "BEL": { name: "Bélgica", range: [1, 20] },
+        "CRO": { name: "Croácia", range: [1, 20] },
+        "SUI": { name: "Suíça", range: [1, 20] },
+        "AUT": { name: "Áustria", range: [1, 20] },
+        "SRB": { name: "Sérvia", range: [1, 20] },
+        "TUR": { name: "Turquia", range: [1, 20] },
+        "NOR": { name: "Noruega", range: [1, 20] },
+        "SCO": { name: "Escócia", range: [1, 20] },
+        "BIH": { name: "Bósnia e Herzegovina", range: [1, 20] },
+        "CZE": { name: "Tchéquia", range: [1, 20] },
+        "SWE": { name: "Suécia", range: [1, 20] },
+        "CRC": { name: "Costa Rica", range: [1, 20] },
+        "PAN": { name: "Panamá", range: [1, 20] },
+        "HAI": { name: "Haiti", range: [1, 20] },
+        "JPN": { name: "Japão", range: [1, 20] },
+        "KOR": { name: "Coreia do Sul", range: [1, 20] },
+        "IRN": { name: "Irã", range: [1, 20] },
+        "KSA": { name: "Arábia Saudita", range: [1, 20] },
+        "AUS": { name: "Austrália", range: [1, 20] },
+        "QAT": { name: "Qatar", range: [1, 20] },
+        "UZB": { name: "Uzbequistão", range: [1, 20] },
+        "IRQ": { name: "Iraque", range: [1, 20] },
+        "JOR": { name: "Jordânia", range: [1, 20] },
+        "MAR": { name: "Marrocos", range: [1, 20] },
+        "SEN": { name: "Senegal", range: [1, 20] },
+        "EGY": { name: "Egito", range: [1, 20] },
+        "TUN": { name: "Tunísia", range: [1, 20] },
+        "ALG": { name: "Argélia", range: [1, 20] },
+        "NGA": { name: "Nigéria", range: [1, 20] },
+        "GHA": { name: "Gana", range: [1, 20] },
+        "CMR": { name: "Camarões", range: [1, 20] },
+        "CIV": { name: "Costa do Marfim", range: [1, 20] },
+        "CPV": { name: "Cabo Verde", range: [1, 20] },
+        "COD": { name: "Congo DR", range: [1, 20] },
+        "RSA": { name: "África do Sul", range: [1, 20] },
+        "NZL": { name: "Nova Zelândia", range: [1, 20] }
     };
 
     // ==================== STATE ====================
     let albumData = loadData();
 
     function loadData() {
-        const saved = localStorage.getItem('album-copa-2022');
+        const saved = localStorage.getItem('album-copa-2026');
         if (saved) return JSON.parse(saved);
         // Inicializa vazio
         const data = {};
@@ -549,7 +572,7 @@
     }
 
     function saveData() {
-        localStorage.setItem('album-copa-2022', JSON.stringify(albumData));
+        localStorage.setItem('album-copa-2026', JSON.stringify(albumData));
         updateStats();
     }
 
@@ -849,7 +872,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'album-copa-2022.json';
+        a.download = 'album-copa-2026.json';
         a.click();
         URL.revokeObjectURL(url);
         showToast('JSON exportado!');
@@ -875,7 +898,7 @@
     }
 
     function copyMissing() {
-        let text = '📋 FIGURINHAS FALTANTES - Copa 2022\n\n';
+        let text = '📋 FIGURINHAS FALTANTES - Copa 2026\n\n';
         for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
             const [start, end] = info.range;
             const owned = albumData[code] || [];
