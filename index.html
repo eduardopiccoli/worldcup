@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Álbum Copa 2026 - Figurinhas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8b1538, #6b0f2b);
+            padding: 16px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .header .stats {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #16213e;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px 4px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            border-bottom-color: #e94560;
+            color: #e94560;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 16px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Scanner Tab */
+        .scanner-area {
+            text-align: center;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #e94560, #c23152);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 12px 8px;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .upload-btn:active {
+            transform: scale(0.95);
+        }
+
+        #preview-container {
+            margin: 16px 0;
+            display: none;
+        }
+
+        #preview-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            border: 2px solid #0f3460;
+        }
+
+        .ocr-status {
+            margin: 12px 0;
+            padding: 12px;
+            border-radius: 8px;
+            background: #16213e;
+            font-size: 0.9rem;
+        }
+
+        .ocr-result {
+            margin: 16px 0;
+            padding: 16px;
+            background: #16213e;
+            border-radius: 12px;
+            border: 1px solid #0f3460;
+        }
+
+        .ocr-result h3 {
+            margin-bottom: 8px;
+            color: #e94560;
+        }
+
+        .detected-numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .detected-number {
+            background: #0f3460;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .detected-number:hover,
+        .detected-number.selected {
+            border-color: #e94560;
+            background: #1a3a6e;
+        }
+
+        .detected-number.owned {
+            background: #1b4332;
+            border-color: #2d6a4f;
+        }
+
+        /* Manual Add */
+        .manual-add {
+            margin-top: 20px;
+            padding: 16px;
+            background: #16213e;
+            border-radius: 12px;
+        }
+
+        .manual-add h3 {
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .form-row select,
+        .form-row input {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        .btn-add {
+            background: #2d6a4f;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-remove {
+            background: #c23152;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Album Tab */
+        .country-section {
+            margin-bottom: 16px;
+            background: #16213e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .country-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            background: #0f3460;
+        }
+
+        .country-header h3 {
+            font-size: 0.95rem;
+        }
+
+        .country-header .count {
+            font-size: 0.8rem;
+            background: #e94560;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+
+        .country-numbers {
+            display: none;
+            padding: 12px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .country-numbers.open {
+            display: flex;
+        }
+
+        .sticker-num {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sticker-num.owned {
+            background: #2d6a4f;
+            color: #fff;
+        }
+
+        .sticker-num.missing {
+            background: #333;
+            color: #666;
+            border: 1px dashed #555;
+        }
+
+        /* Faltantes Tab */
+        .missing-list {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .missing-country {
+            margin-bottom: 12px;
+        }
+
+        .missing-country h4 {
+            color: #e94560;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .missing-nums {
+            font-size: 0.85rem;
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        /* Export/Import */
+        .data-section {
+            margin-top: 16px;
+            padding: 16px;
+            background: #16213e;
+            border-radius: 12px;
+        }
+
+        .data-section h3 {
+            margin-bottom: 12px;
+        }
+
+        .btn-export, .btn-import, .btn-reset {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .btn-export {
+            background: #0f3460;
+            color: #fff;
+        }
+
+        .btn-import {
+            background: #2d6a4f;
+            color: #fff;
+        }
+
+        .btn-reset {
+            background: #c23152;
+            color: #fff;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #2d6a4f);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d6a4f;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .bulk-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 0.95rem;
+            min-height: 60px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="src/capa.png" alt="Álbum Copa 2026" style="height: 80px; margin-bottom: 8px; border-radius: 8px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));">`
+        <h1>⚽ Álbum Copa 2026</h1>
+        <div class="stats" id="global-stats">Carregando...</div>
+        <div class="progress-bar"><div class="fill" id="progress-fill"></div></div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" data-tab="scanner">📷 Scanner</div>
+        <div class="tab" data-tab="album">📖 Álbum</div>
+        <div class="tab" data-tab="missing">❌ Faltantes</div>
+        <div class="tab" data-tab="dupes">🔄 Repetidas</div>
+        <div class="tab" data-tab="data">💾 Dados</div>
+    </div>
+
+    <div class="tab-content active" id="tab-scanner">
+        <div class="scanner-area">
+            <p style="margin-bottom: 12px; opacity: 0.8;">Tire uma foto das figurinhas ou selecione da galeria</p>
+            <button class="upload-btn" onclick="document.getElementById('camera-input').click()">
+                📷 Câmera
+            </button>
+            <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+                🖼️ Galeria
+            </button>
+            <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleImage(this)">
+            <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleImage(this)">
+        </div>
+
+        <div id="preview-container">
+            <img id="preview-img" alt="Preview">
+            <div style="margin-top:8px; font-size:0.75rem; opacity:0.6;">Recorte analisado pelo OCR:</div>
+            <img id="crop-preview" alt="Recorte OCR" style="display:none; max-width:100%; border-radius:8px; border:2px solid #e94560; margin-top:4px; image-rendering:pixelated;">
+        </div>
+
+        <div class="ocr-status" id="ocr-status" style="display:none;"></div>
+
+        <div class="ocr-result" id="ocr-result" style="display:none;">
+            <h3>Números detectados:</h3>
+            <div class="detected-numbers" id="detected-numbers"></div>
+            <div style="margin-top: 12px;">
+                <select id="ocr-country" style="padding: 8px; border-radius: 8px; background: #1a1a2e; color: #fff; border: 1px solid #0f3460; width: 100%; margin-bottom: 8px;"></select>
+                <button class="btn-add" onclick="addDetectedNumbers()" style="width: 100%;">✅ Adicionar selecionados ao álbum</button>
+            </div>
+        </div>
+
+        <div class="manual-add">
+            <h3>➕ Adicionar manualmente</h3>
+            <div class="form-row">
+                <select id="manual-country"></select>
+            </div>
+            <div class="form-row">
+                <input type="text" id="manual-numbers" placeholder="Números (ex: 1, 5, 12, 45)">
+            </div>
+            <div class="form-row">
+                <button class="btn-add" onclick="addManual()">Adicionar</button>
+                <button class="btn-remove" onclick="removeManual()">Remover</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-album">
+        <input type="text" class="search-box" placeholder="🔍 Buscar país..." oninput="filterAlbum(this.value)">
+        <div id="album-list"></div>
+    </div>
+
+    <div class="tab-content" id="tab-missing">
+        <div id="missing-summary" style="margin-bottom: 12px; font-size: 0.9rem; opacity: 0.8;"></div>
+        <div class="missing-list" id="missing-list"></div>
+    </div>
+
+    <div class="tab-content" id="tab-dupes">
+        <div class="manual-add" style="margin-bottom: 16px;">
+            <h3>➕ Adicionar repetidas</h3>
+            <div class="form-row">
+                <select id="dupes-country"></select>
+            </div>
+            <div class="form-row">
+                <input type="text" id="dupes-numbers" placeholder="Números (ex: 3, 7, 15)">
+            </div>
+            <div class="form-row">
+                <button class="btn-add" onclick="addDuplicatesManual()" style="flex:1;">Adicionar ao estoque</button>
+                <button class="btn-remove" onclick="removeDuplicatesManual()" style="flex:1;">Remover do estoque</button>
+            </div>
+        </div>
+        <div id="dupes-summary" style="margin-bottom: 12px; font-size: 0.9rem; opacity: 0.8;"></div>
+        <div id="dupes-list"></div>
+    </div>
+
+    <div class="tab-content" id="tab-data">
+        <div class="data-section">
+            <h3>📤 Exportar / Importar</h3>
+            <button class="btn-export" onclick="exportData()">Exportar JSON (álbum + repetidas)</button>
+            <button class="btn-export" onclick="exportDuplicates()" style="background: #f4a261; color: #000;">📦 Exportar só repetidas</button>
+            <button class="btn-import" onclick="document.getElementById('import-input').click()">Importar JSON</button>
+            <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(this)">
+            <button class="btn-export" onclick="copyMissing()" style="margin-top: 8px; background: #0f3460;">📋 Copiar lista de faltantes</button>
+            <button class="btn-reset" onclick="resetData()">🗑️ Resetar tudo</button>
+        </div>
+
+        <div class="data-section" style="margin-top: 16px;">
+            <h3>🖨️ Relatórios One Page</h3>
+            <button class="btn-export" onclick="openOnePage('missing')" style="background: #e94560;">❌ Faltantes — One Page</button>
+            <button class="btn-export" onclick="openOnePage('dupes')" style="background: #f4a261; color: #000;">🔄 Repetidas — One Page</button>
+        </div>
+
+        <div class="data-section" style="margin-top: 16px;">
+            <h3>📊 Estatísticas</h3>
+            <div id="detailed-stats"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script>
+
+    // ==================== DADOS DO ÁLBUM COPA 2026 ====================
+    // 980 figurinhas: 9 Intro + 11 FIFA Museum + 48 seleções x 20 cada
+    // Organizado por grupos oficiais (A-L) conforme sorteio FIFA
+    const ALBUM_STRUCTURE = {
+        "FWC": { name: "FIFA World Cup (Intro)", group: "—", range: [1, 9] },
+        "MUS": { name: "FIFA Museum", group: "—", range: [1, 11] },
+        // Grupo A
+        "MEX": { name: "México", group: "A", range: [1, 20] },
+        "RSA": { name: "África do Sul", group: "A", range: [1, 20] },
+        "KOR": { name: "Coreia do Sul", group: "A", range: [1, 20] },
+        "CZE": { name: "Tchéquia", group: "A", range: [1, 20] },
+        // Grupo B
+        "CAN": { name: "Canadá", group: "B", range: [1, 20] },
+        "BIH": { name: "Bósnia e Herzegovina", group: "B", range: [1, 20] },
+        "QAT": { name: "Qatar", group: "B", range: [1, 20] },
+        "SUI": { name: "Suíça", group: "B", range: [1, 20] },
+        // Grupo C
+        "BRA": { name: "Brasil", group: "C", range: [1, 20] },
+        "MAR": { name: "Marrocos", group: "C", range: [1, 20] },
+        "HAI": { name: "Haiti", group: "C", range: [1, 20] },
+        "SCO": { name: "Escócia", group: "C", range: [1, 20] },
+        // Grupo D
+        "USA": { name: "Estados Unidos", group: "D", range: [1, 20] },
+        "PAR": { name: "Paraguai", group: "D", range: [1, 20] },
+        "AUS": { name: "Austrália", group: "D", range: [1, 20] },
+        "TUR": { name: "Turquia", group: "D", range: [1, 20] },
+        // Grupo E
+        "GER": { name: "Alemanha", group: "E", range: [1, 20] },
+        "CUR": { name: "Curaçao", group: "E", range: [1, 20] },
+        "CIV": { name: "Costa do Marfim", group: "E", range: [1, 20] },
+        "ECU": { name: "Equador", group: "E", range: [1, 20] },
+        // Grupo F
+        "NED": { name: "Holanda", group: "F", range: [1, 20] },
+        "JPN": { name: "Japão", group: "F", range: [1, 20] },
+        "SWE": { name: "Suécia", group: "F", range: [1, 20] },
+        "TUN": { name: "Tunísia", group: "F", range: [1, 20] },
+        // Grupo G
+        "BEL": { name: "Bélgica", group: "G", range: [1, 20] },
+        "EGY": { name: "Egito", group: "G", range: [1, 20] },
+        "IRN": { name: "Irã", group: "G", range: [1, 20] },
+        "NZL": { name: "Nova Zelândia", group: "G", range: [1, 20] },
+        // Grupo H
+        "ESP": { name: "Espanha", group: "H", range: [1, 20] },
+        "CPV": { name: "Cabo Verde", group: "H", range: [1, 20] },
+        "KSA": { name: "Arábia Saudita", group: "H", range: [1, 20] },
+        "URU": { name: "Uruguai", group: "H", range: [1, 20] },
+        // Grupo I
+        "FRA": { name: "França", group: "I", range: [1, 20] },
+        "SEN": { name: "Senegal", group: "I", range: [1, 20] },
+        "IRQ": { name: "Iraque", group: "I", range: [1, 20] },
+        "NOR": { name: "Noruega", group: "I", range: [1, 20] },
+        // Grupo J
+        "ARG": { name: "Argentina", group: "J", range: [1, 20] },
+        "ALG": { name: "Argélia", group: "J", range: [1, 20] },
+        "AUT": { name: "Áustria", group: "J", range: [1, 20] },
+        "JOR": { name: "Jordânia", group: "J", range: [1, 20] },
+        // Grupo K
+        "POR": { name: "Portugal", group: "K", range: [1, 20] },
+        "COD": { name: "Congo DR", group: "K", range: [1, 20] },
+        "UZB": { name: "Uzbequistão", group: "K", range: [1, 20] },
+        "COL": { name: "Colômbia", group: "K", range: [1, 20] },
+        // Grupo L
+        "ENG": { name: "Inglaterra", group: "L", range: [1, 20] },
+        "CRO": { name: "Croácia", group: "L", range: [1, 20] },
+        "GHA": { name: "Gana", group: "L", range: [1, 20] },
+        "PAN": { name: "Panamá", group: "L", range: [1, 20] }
+    };
+
+    // ==================== STATE ====================
+    let albumData = loadData();
+    let duplicatesData = loadDuplicates();
+
+    function loadData() {
+        const saved = localStorage.getItem('album-copa-2026');
+        if (saved) return JSON.parse(saved);
+        const data = {};
+        for (const code of Object.keys(ALBUM_STRUCTURE)) data[code] = [];
+        return data;
+    }
+
+    function loadDuplicates() {
+        const saved = localStorage.getItem('album-copa-2026-repetidas');
+        if (saved) return JSON.parse(saved);
+        const data = {};
+        for (const code of Object.keys(ALBUM_STRUCTURE)) data[code] = {};
+        return data;
+    }
+
+    function saveData() {
+        localStorage.setItem('album-copa-2026', JSON.stringify(albumData));
+        localStorage.setItem('album-copa-2026-repetidas', JSON.stringify(duplicatesData));
+        updateStats();
+    }
+
+    // Adiciona figurinha: se já tem no álbum → vai para repetidas
+    function addSticker(country, num) {
+        if (!ALBUM_STRUCTURE[country]) return 'invalid';
+        const [start, end] = ALBUM_STRUCTURE[country].range;
+        if (num < start || num > end) return 'invalid';
+
+        if (!albumData[country]) albumData[country] = [];
+        if (!duplicatesData[country]) duplicatesData[country] = {};
+
+        if (albumData[country].includes(num)) {
+            // Já tem no álbum → adiciona às repetidas
+            duplicatesData[country][num] = (duplicatesData[country][num] || 0) + 1;
+            return 'duplicate';
+        } else {
+            albumData[country].push(num);
+            albumData[country].sort((a, b) => a - b);
+            return 'added';
+        }
+    }
+
+    // ==================== TABS ====================
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+
+            if (tab.dataset.tab === 'album') renderAlbum();
+            if (tab.dataset.tab === 'missing') renderMissing();
+            if (tab.dataset.tab === 'dupes') renderDuplicates();
+            if (tab.dataset.tab === 'data') renderDetailedStats();
+        });
+    });
+
+    // ==================== STATS ====================
+    function updateStats() {
+        let total = 0, owned = 0;
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            const [start, end] = [info.range[0], info.range[1]];
+            total += (end - start + 1);
+            owned += (albumData[code] || []).length;
+        }
+        document.getElementById('global-stats').textContent = `${owned} / ${total} figurinhas (${Math.round(owned/total*100)}%)`;
+        document.getElementById('progress-fill').style.width = `${(owned/total*100)}%`;
+    }
+
+    // ==================== OCR ====================
+
+    // Pré-processa e recorta o topo da figurinha (onde fica FIFA WORLD CUP 2026 + PAN 8)
+    function prepareImage(file) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+                // Recorta os primeiros 12% da altura — linha do topo com código e número
+                const cropX = 0;
+                const cropY = 0;
+                const cropW = img.width;
+                const cropH = Math.floor(img.height * 0.12);
+
+                // Escala 4x para melhorar OCR em texto pequeno
+                const scale = 4;
+                const canvas = document.createElement('canvas');
+                canvas.width  = cropW * scale;
+                canvas.height = cropH * scale;
+                const ctx = canvas.getContext('2d');
+
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+
+                // Threshold binário: escala de cinza + binarização
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const d = imageData.data;
+                for (let i = 0; i < d.length; i += 4) {
+                    const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+                    const val  = gray < 160 ? 0 : 255;
+                    d[i] = d[i+1] = d[i+2] = val;
+                }
+                ctx.putImageData(imageData, 0, 0);
+
+                // Mostra preview do recorte
+                const cropPreview = document.getElementById('crop-preview');
+                if (cropPreview) {
+                    cropPreview.src = canvas.toDataURL();
+                    cropPreview.style.display = 'block';
+                }
+
+                URL.revokeObjectURL(url);
+                canvas.toBlob(blob => resolve({ blob }), 'image/png');
+            };
+            img.src = url;
+        });
+    }
+
+    async function handleImage(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const status  = document.getElementById('ocr-status');
+        const result  = document.getElementById('ocr-result');
+        const preview = document.getElementById('preview-container');
+        const imgEl   = document.getElementById('preview-img');
+
+        // Preview original
+        const reader = new FileReader();
+        reader.onload = e => { imgEl.src = e.target.result; preview.style.display = 'block'; };
+        reader.readAsDataURL(file);
+
+        status.style.display = 'block';
+        status.innerHTML = '<span class="loading-spinner"></span> Preparando imagem...';
+        result.style.display = 'none';
+
+        try {
+            const { blob } = await prepareImage(file);
+
+            status.innerHTML = '<span class="loading-spinner"></span> Lendo texto...';
+
+            // PSM 11 = texto esparso — melhor para pegar PAN8 no meio de outros textos
+            const { data } = await Tesseract.recognize(blob, 'eng', {
+                tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+                tessedit_pageseg_mode: '11',
+                logger: m => {
+                    if (m.status === 'recognizing text') {
+                        status.innerHTML = `<span class="loading-spinner"></span> Reconhecendo... ${Math.round(m.progress * 100)}%`;
+                    }
+                }
+            });
+
+            const raw = data.text.trim().toUpperCase().replace(/[^A-Z0-9\s]/g, ' ').replace(/\s+/g, ' ');
+            console.log('OCR raw:', JSON.stringify(raw));
+
+            const { country, number, allNumbers } = parseOCRText(raw);
+
+            let statusMsg = `✅ Lido: <strong>"${raw}"</strong>`;
+            if (country) statusMsg += ` → <strong>${ALBUM_STRUCTURE[country]?.name} (${country})</strong>`;
+            if (number)  statusMsg += ` nº <strong>${number}</strong>`;
+            status.innerHTML = statusMsg;
+
+            result.style.display = 'block';
+            const container = document.getElementById('detected-numbers');
+            container.innerHTML = '';
+
+            const numsToShow = number ? [number] : allNumbers;
+            if (numsToShow.length === 0) {
+                status.innerHTML += '<br>⚠️ Nenhum número detectado. Ajuste manualmente.';
+            }
+
+            numsToShow.forEach(num => {
+                const el = document.createElement('div');
+                const alreadyOwned = country && (albumData[country] || []).includes(num);
+                el.className = `detected-number selected${alreadyOwned ? ' owned' : ''}`;
+                el.title = alreadyOwned ? 'Já no álbum — vai para repetidas' : '';
+                el.innerHTML = alreadyOwned ? `${num} 🔄` : `${num}`;
+                el.onclick = () => el.classList.toggle('selected');
+                container.appendChild(el);
+            });
+
+            const select = document.getElementById('ocr-country');
+            if (country) select.value = country;
+
+        } catch (err) {
+            status.innerHTML = '❌ Erro no OCR: ' + err.message;
+            console.error(err);
+        }
+
+        input.value = '';
+    }
+
+    // Interpreta o texto do topo: ex "FIFAWORLDCUP2026 PAN8", "PAN 8", "PAN8"
+    function parseOCRText(text) {
+        // Remove ruído conhecido
+        const cleaned = text
+            .replace(/FIFAWORLDCUP\d*/g, '')
+            .replace(/FIFA/g, '')
+            .replace(/WORLD/g, '')
+            .replace(/CUP/g, '')
+            .replace(/2026/g, '')
+            .replace(/\s+/g, ' ').trim();
+
+        console.log('OCR cleaned:', JSON.stringify(cleaned));
+
+        const tokens = cleaned.split(/\s+/).filter(t => t.length > 0);
+        let country = null;
+        let number  = null;
+        const allNumbers = [];
+
+        for (const token of tokens) {
+            // Token misto tipo "PAN8" ou "8PAN" — mais comum nesse álbum
+            const mixedLetNum = token.match(/^([A-Z]{2,4})(\d{1,2})$/);
+            const mixedNumLet = token.match(/^(\d{1,2})([A-Z]{2,4})$/);
+            if (mixedLetNum) {
+                const [, letters, digits] = mixedLetNum;
+                if (!country) { const fc = fuzzyCountry(letters); if (fc) country = fc; }
+                const n = parseInt(digits);
+                if (!number && n >= 1 && n <= 20) { number = n; allNumbers.push(n); }
+                continue;
+            }
+            if (mixedNumLet) {
+                const [, digits, letters] = mixedNumLet;
+                if (!country) { const fc = fuzzyCountry(letters); if (fc) country = fc; }
+                const n = parseInt(digits);
+                if (!number && n >= 1 && n <= 20) { number = n; allNumbers.push(n); }
+                continue;
+            }
+            // Número isolado 1-20
+            if (/^\d{1,2}$/.test(token)) {
+                const n = parseInt(token);
+                if (n >= 1 && n <= 20) { allNumbers.push(n); if (!number) number = n; }
+                continue;
+            }
+            // Código de país isolado
+            if (!country && /^[A-Z]{2,4}$/.test(token)) {
+                const fc = fuzzyCountry(token);
+                if (fc) country = fc;
+            }
+        }
+
+        return { country, number, allNumbers };
+    }
+
+    function fuzzyCountry(token) {
+        if (ALBUM_STRUCTURE[token]) return token;
+        // Corrige erros comuns: 0→O, 1→I, 5→S, 8→B
+        const fixed = token.replace(/0/g,'O').replace(/1/g,'I').replace(/5/g,'S').replace(/8/g,'B');
+        if (ALBUM_STRUCTURE[fixed]) return fixed;
+        // Tolerância de 1 caractere diferente
+        for (const code of Object.keys(ALBUM_STRUCTURE)) {
+            if (code.length !== token.length) continue;
+            let diff = 0;
+            for (let i = 0; i < code.length; i++) if (code[i] !== token[i] && code[i] !== fixed[i]) diff++;
+            if (diff <= 1) return code;
+        }
+        return null;
+    }
+
+    function extractNumbers(text) {
+        const matches = text.match(/\b\d{1,2}\b/g) || [];
+        return [...new Set(matches.map(Number).filter(n => n >= 1 && n <= 20))].sort((a,b) => a-b);
+    }
+
+    function detectCountry(text) {
+        const upper = text.toUpperCase();
+        for (const code of Object.keys(ALBUM_STRUCTURE)) {
+            if (upper.includes(code)) return code;
+        }
+        return null;
+    }
+
+    function addDetectedNumbers() {
+        const country = document.getElementById('ocr-country').value;
+        const selected = document.querySelectorAll('#detected-numbers .detected-number.selected');
+        const numbers = Array.from(selected).map(el => parseInt(el.textContent));
+
+        if (!country) { showToast('Selecione um país!'); return; }
+
+        let added = 0, dupes = 0;
+        numbers.forEach(num => {
+            const result = addSticker(country, num);
+            if (result === 'added') added++;
+            else if (result === 'duplicate') dupes++;
+        });
+
+        saveData();
+        let msg = '';
+        if (added > 0) msg += `${added} adicionada(s) ao álbum. `;
+        if (dupes > 0) msg += `${dupes} repetida(s) no estoque!`;
+        if (dupes > 0) showToast(msg, 'warning');
+        else showToast(msg || 'Nenhuma alteração.');
+    }
+
+    // ==================== MANUAL ADD/REMOVE ====================
+    function addManual() {
+        const country = document.getElementById('manual-country').value;
+        const input = document.getElementById('manual-numbers').value;
+        const numbers = input.split(/[,\s]+/).map(Number).filter(n => !isNaN(n) && n > 0);
+
+        if (!country || numbers.length === 0) { showToast('Preencha país e números!'); return; }
+
+        let added = 0, dupes = 0;
+        numbers.forEach(num => {
+            const result = addSticker(country, num);
+            if (result === 'added') added++;
+            else if (result === 'duplicate') dupes++;
+        });
+
+        saveData();
+        document.getElementById('manual-numbers').value = '';
+        let msg = '';
+        if (added > 0) msg += `${added} adicionada(s). `;
+        if (dupes > 0) msg += `${dupes} repetida(s) no estoque!`;
+        if (dupes > 0) showToast(msg, 'warning');
+        else showToast(msg || 'Nenhuma alteração.');
+    }
+
+    function removeManual() {
+        const country = document.getElementById('manual-country').value;
+        const input = document.getElementById('manual-numbers').value;
+        const numbers = input.split(/[,\s]+/).map(Number).filter(n => !isNaN(n) && n > 0);
+
+        if (!country || numbers.length === 0) {
+            showToast('Preencha país e números!');
+            return;
+        }
+
+        let removed = 0;
+        numbers.forEach(num => {
+            const idx = albumData[country].indexOf(num);
+            if (idx > -1) {
+                albumData[country].splice(idx, 1);
+                removed++;
+            }
+        });
+
+        saveData();
+        document.getElementById('manual-numbers').value = '';
+        showToast(`${removed} figurinha(s) removida(s)!`);
+    }
+
+    // ==================== DUPLICATES VIEW ====================
+    function renderDuplicates() {
+        const container = document.getElementById('dupes-list');
+        const summary = document.getElementById('dupes-summary');
+        container.innerHTML = '';
+        let totalDupes = 0;
+        let currentGroup = '';
+
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            const dupes = duplicatesData[code] || {};
+            const entries = Object.entries(dupes).filter(([, qty]) => qty > 0);
+            if (entries.length === 0) continue;
+
+            totalDupes += entries.reduce((s, [, q]) => s + q, 0);
+
+            if (info.group !== currentGroup) {
+                currentGroup = info.group;
+                const groupHeader = document.createElement('div');
+                groupHeader.style.cssText = 'padding: 8px 0; margin-top: 8px; font-size: 0.85rem; font-weight: 700; color: #f4a261; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #0f3460;';
+                groupHeader.textContent = currentGroup === '—' ? '🏆 Especiais' : `Grupo ${currentGroup}`;
+                container.appendChild(groupHeader);
+            }
+
+            const section = document.createElement('div');
+            section.className = 'country-section';
+            section.style.marginBottom = '8px';
+
+            const header = document.createElement('div');
+            header.className = 'country-header';
+            const totalQty = entries.reduce((s, [, q]) => s + q, 0);
+            header.innerHTML = `<h3>${info.name} (${code})</h3><span class="count" style="background:#f4a261;">${totalQty} repetida(s)</span>`;
+            header.onclick = () => nums.classList.toggle('open');
+
+            const nums = document.createElement('div');
+            nums.className = 'country-numbers';
+
+            entries.sort(([a], [b]) => Number(a) - Number(b)).forEach(([num, qty]) => {
+                const box = document.createElement('div');
+                box.style.cssText = 'background:#3d2b00; border:1px solid #f4a261; border-radius:8px; padding:6px 10px; font-size:0.8rem; font-weight:600; text-align:center; cursor:pointer; position:relative;';
+                box.innerHTML = `<div>${num}</div><div style="font-size:0.65rem;color:#f4a261;">x${qty}</div>`;
+                box.title = 'Toque para remover 1 do estoque';
+                box.onclick = (e) => {
+                    e.stopPropagation();
+                    removeDuplicate(code, Number(num), box, nums);
+                };
+                nums.appendChild(box);
+            });
+
+            section.appendChild(header);
+            section.appendChild(nums);
+            container.appendChild(section);
+        }
+
+        if (totalDupes === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:40px;opacity:0.6;">Nenhuma figurinha repetida ainda.</div>';
+        }
+        summary.textContent = totalDupes > 0 ? `Total de repetidas: ${totalDupes} figurinha(s)` : '';
+    }
+
+    // ==================== DUPLICATES MANUAL ====================
+    function addDuplicatesManual() {
+        const country = document.getElementById('dupes-country').value;
+        const input = document.getElementById('dupes-numbers').value;
+        const numbers = input.split(/[,\s]+/).map(Number).filter(n => !isNaN(n) && n > 0);
+
+        if (!country || numbers.length === 0) { showToast('Preencha país e números!'); return; }
+
+        if (!duplicatesData[country]) duplicatesData[country] = {};
+        let added = 0;
+        const [start, end] = ALBUM_STRUCTURE[country].range;
+        numbers.forEach(num => {
+            if (num >= start && num <= end) {
+                duplicatesData[country][num] = (duplicatesData[country][num] || 0) + 1;
+                added++;
+            }
+        });
+
+        saveData();
+        document.getElementById('dupes-numbers').value = '';
+        renderDuplicates();
+        showToast(`${added} repetida(s) adicionada(s) ao estoque!`, 'warning');
+    }
+
+    function removeDuplicatesManual() {
+        const country = document.getElementById('dupes-country').value;
+        const input = document.getElementById('dupes-numbers').value;
+        const numbers = input.split(/[,\s]+/).map(Number).filter(n => !isNaN(n) && n > 0);
+
+        if (!country || numbers.length === 0) { showToast('Preencha país e números!'); return; }
+
+        if (!duplicatesData[country]) { showToast('Nenhuma repetida para esse país.'); return; }
+        let removed = 0;
+        numbers.forEach(num => {
+            if (duplicatesData[country][num] > 0) {
+                duplicatesData[country][num]--;
+                if (duplicatesData[country][num] === 0) delete duplicatesData[country][num];
+                removed++;
+            }
+        });
+
+        saveData();
+        document.getElementById('dupes-numbers').value = '';
+        renderDuplicates();
+        showToast(`${removed} repetida(s) removida(s) do estoque.`);
+    }
+
+    function removeDuplicate(code, num, box, container) {
+        if (!duplicatesData[code]) return;
+        const qty = duplicatesData[code][num] || 0;
+        if (qty <= 1) {
+            delete duplicatesData[code][num];
+            box.remove();
+        } else {
+            duplicatesData[code][num] = qty - 1;
+            box.querySelector('div:last-child').textContent = `x${qty - 1}`;
+        }
+        saveData();
+        showToast('Repetida removida do estoque.');
+        // Atualiza contador do header
+        const section = container.closest('.country-section');
+        if (section) {
+            const remaining = Object.values(duplicatesData[code] || {}).reduce((s, q) => s + q, 0);
+            const countEl = section.querySelector('.count');
+            if (countEl) countEl.textContent = `${remaining} repetida(s)`;
+            if (remaining === 0) section.remove();
+        }
+        renderDuplicates();
+    }
+    function renderAlbum(filter = '') {
+        const container = document.getElementById('album-list');
+        container.innerHTML = '';
+
+        let currentGroup = '';
+
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            if (filter && !info.name.toLowerCase().includes(filter.toLowerCase()) && !code.toLowerCase().includes(filter.toLowerCase()) && !('grupo ' + info.group).toLowerCase().includes(filter.toLowerCase())) {
+                continue;
+            }
+
+            // Separador de grupo
+            if (info.group !== currentGroup) {
+                currentGroup = info.group;
+                const groupHeader = document.createElement('div');
+                groupHeader.style.cssText = 'padding: 10px 16px; margin-top: 12px; font-size: 0.9rem; font-weight: 700; color: #e94560; text-transform: uppercase; letter-spacing: 1px;';
+                groupHeader.textContent = currentGroup === '—' ? '🏆 Especiais' : `Grupo ${currentGroup}`;
+                container.appendChild(groupHeader);
+            }
+
+            const [start, end] = info.range;
+            const total = end - start + 1;
+            const owned = (albumData[code] || []).length;
+
+            const section = document.createElement('div');
+            section.className = 'country-section';
+
+            const header = document.createElement('div');
+            header.className = 'country-header';
+            header.innerHTML = `
+                <h3>${info.name} (${code})</h3>
+                <span class="count">${owned}/${total}</span>
+            `;
+            header.onclick = () => {
+                const nums = section.querySelector('.country-numbers');
+                nums.classList.toggle('open');
+            };
+
+            const numbers = document.createElement('div');
+            numbers.className = 'country-numbers';
+
+            for (let i = start; i <= end; i++) {
+                const sticker = document.createElement('div');
+                const isOwned = (albumData[code] || []).includes(i);
+                sticker.className = `sticker-num ${isOwned ? 'owned' : 'missing'}`;
+                sticker.textContent = i;
+                sticker.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleSticker(code, i, sticker);
+                };
+                numbers.appendChild(sticker);
+            }
+
+            section.appendChild(header);
+            section.appendChild(numbers);
+            container.appendChild(section);
+        }
+    }
+
+    function toggleSticker(code, num, el) {
+        const idx = albumData[code].indexOf(num);
+        if (idx > -1) {
+            albumData[code].splice(idx, 1);
+            el.className = 'sticker-num missing';
+        } else {
+            albumData[code].push(num);
+            albumData[code].sort((a, b) => a - b);
+            el.className = 'sticker-num owned';
+        }
+        saveData();
+    }
+
+    function filterAlbum(value) {
+        renderAlbum(value);
+    }
+
+    // ==================== MISSING VIEW ====================
+    function renderMissing() {
+        const container = document.getElementById('missing-list');
+        const summary = document.getElementById('missing-summary');
+        container.innerHTML = '';
+        let totalMissing = 0;
+        let currentGroup = '';
+
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            const [start, end] = info.range;
+            const owned = albumData[code] || [];
+            const missing = [];
+
+            for (let i = start; i <= end; i++) {
+                if (!owned.includes(i)) missing.push(i);
+            }
+
+            totalMissing += missing.length;
+
+            if (missing.length > 0 && missing.length < (end - start + 1)) {
+                // Separador de grupo
+                if (info.group !== currentGroup) {
+                    currentGroup = info.group;
+                    const groupHeader = document.createElement('div');
+                    groupHeader.style.cssText = 'padding: 8px 0; margin-top: 8px; font-size: 0.85rem; font-weight: 700; color: #e94560; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #0f3460;';
+                    groupHeader.textContent = currentGroup === '—' ? '🏆 Especiais' : `Grupo ${currentGroup}`;
+                    container.appendChild(groupHeader);
+                }
+
+                const div = document.createElement('div');
+                div.className = 'missing-country';
+                div.innerHTML = `
+                    <h4>${info.name} (${code}) - faltam ${missing.length}</h4>
+                    <div class="missing-nums">${missing.join(', ')}</div>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        summary.textContent = `Total de figurinhas faltantes: ${totalMissing}`;
+    }
+
+    // ==================== DATA MANAGEMENT ====================
+    function exportData() {
+        const exportObj = {
+            album: albumData,
+            repetidas: duplicatesData
+        };
+        const json = JSON.stringify(exportObj, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'album-copa-2026.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('JSON exportado (álbum + repetidas)!');
+    }
+
+    function exportDuplicates() {
+        const report = {};
+        let total = 0;
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            const dupes = duplicatesData[code] || {};
+            const entries = Object.entries(dupes).filter(([, q]) => q > 0);
+            if (entries.length > 0) {
+                report[code] = { pais: info.name, grupo: info.group, figurinhas: {} };
+                entries.sort(([a],[b]) => Number(a) - Number(b)).forEach(([num, qty]) => {
+                    report[code].figurinhas[num] = qty;
+                    total += qty;
+                });
+            }
+        }
+        report._resumo = { total_repetidas: total, paises_com_repetidas: Object.keys(report).filter(k => k !== '_resumo').length };
+
+        const json = JSON.stringify(report, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'repetidas-copa-2026.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Relatório de repetidas exportado!');
+    }
+
+    function importData(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                // Suporta formato novo {album, repetidas} e formato antigo (só álbum)
+                if (data.album) {
+                    albumData = data.album;
+                    if (data.repetidas) duplicatesData = data.repetidas;
+                } else {
+                    albumData = data;
+                }
+                saveData();
+                showToast('Dados importados com sucesso!');
+            } catch (err) {
+                showToast('Erro ao importar: arquivo inválido');
+            }
+        };
+        reader.readAsText(file);
+        input.value = '';
+    }
+
+    function copyMissing() {
+        let text = '📋 FIGURINHAS FALTANTES - Copa 2026\n\n';
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            const [start, end] = info.range;
+            const owned = albumData[code] || [];
+            const missing = [];
+            for (let i = start; i <= end; i++) {
+                if (!owned.includes(i)) missing.push(i);
+            }
+            if (missing.length > 0 && missing.length < (end - start + 1)) {
+                text += `${info.name} (${code}): ${missing.join(', ')}\n`;
+            }
+        }
+
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Lista copiada!');
+        }).catch(() => {
+            // Fallback
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('Lista copiada!');
+        });
+    }
+
+    function resetData() {
+        if (confirm('Tem certeza? Isso vai apagar TODAS as suas figurinhas!')) {
+            if (confirm('Última chance! Deseja exportar antes de resetar?')) {
+                exportData();
+            }
+            albumData = {};
+            for (const [code] of Object.entries(ALBUM_STRUCTURE)) {
+                albumData[code] = [];
+            }
+            saveData();
+            showToast('Dados resetados!');
+        }
+    }
+
+    function renderDetailedStats() {
+        const container = document.getElementById('detailed-stats');
+        let total = 0, owned = 0;
+        let html = '<div style="margin-top: 8px;">';
+
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            const [start, end] = info.range;
+            const countryTotal = end - start + 1;
+            const countryOwned = (albumData[code] || []).length;
+            total += countryTotal;
+            owned += countryOwned;
+            const pct = Math.round(countryOwned / countryTotal * 100);
+
+            html += `<div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.85rem; border-bottom: 1px solid #0f3460;">
+                <span>${info.name}</span>
+                <span style="color: ${pct === 100 ? '#2d6a4f' : pct > 50 ? '#e9c46a' : '#e94560'}">${countryOwned}/${countryTotal} (${pct}%)</span>
+            </div>`;
+        }
+
+        html += '</div>';
+        container.innerHTML = `
+            <p style="font-size: 1.1rem; margin-bottom: 8px;"><strong>${owned}</strong> de <strong>${total}</strong> figurinhas</p>
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 12px;">Faltam <strong>${total - owned}</strong> para completar</p>
+            ${html}
+        `;
+    }
+
+    // ==================== ONE PAGE REPORTS ====================
+    function openOnePage(type) {
+        const style = `
+            @page{size:A4 portrait;margin:5mm}
+            *{margin:0;padding:0;box-sizing:border-box}
+            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1a1a2e;color:#fff;width:210mm;min-height:297mm;margin:0 auto;padding:6mm}
+            .title-bar{text-align:center;padding:4mm 0;border-bottom:2px solid VAR_COLOR;margin-bottom:4mm}
+            .title-bar h1{font-size:14pt;color:VAR_COLOR;margin-bottom:2mm}
+            .title-bar .subtitle{font-size:8pt;color:#aaa}
+            .stats-row{display:flex;justify-content:center;gap:12mm;margin-bottom:4mm;padding:3mm;background:#16213e;border-radius:3mm}
+            .stat-box{text-align:center}
+            .stat-box .num{font-size:16pt;font-weight:700;color:VAR_COLOR}
+            .stat-box .label{font-size:7pt;color:#aaa;margin-top:1mm}
+            .groups-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2mm}
+            .group-block{background:#16213e;border-radius:2mm;padding:2mm;border-top:2px solid VAR_COLOR}
+            .group-label{font-size:7pt;font-weight:700;color:VAR_COLOR;text-align:center;margin-bottom:1.5mm;text-transform:uppercase}
+            .country-row{margin-bottom:1.5mm}
+            .country-name{font-size:6pt;font-weight:600;color:#e0e0e0;margin-bottom:0.5mm}
+            .country-name .code{color:#888}
+            .country-name .qty{float:right;color:VAR_COLOR;font-size:5.5pt}
+            .nums{display:flex;flex-wrap:wrap;gap:0.8mm}
+            .n{background:#0f3460;border:0.5px solid VAR_COLOR;border-radius:1mm;width:5.5mm;height:5.5mm;display:flex;align-items:center;justify-content:center;font-size:5pt;font-weight:600;color:VAR_COLOR}
+            .empty-country{font-size:5.5pt;color:#555;font-style:italic}
+            .footer{text-align:center;margin-top:3mm;padding-top:2mm;border-top:1px solid #333;font-size:6.5pt;color:#666}
+            @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}
+            .print-btn{position:fixed;top:10px;right:10px;background:VAR_COLOR;color:#000;border:none;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;border-radius:6px;z-index:100}
+        `;
+
+        const isMissing = type === 'missing';
+        const color = isMissing ? '#e94560' : '#f4a261';
+        const title = isMissing ? '❌ FIGURINHAS FALTANTES — Copa 2026' : '🔄 FIGURINHAS REPETIDAS — Copa 2026';
+        const subtitle = isMissing ? 'Preciso para completar o álbum' : 'Disponíveis para troca';
+
+        // Calcula dados
+        const groupsMap = {};
+        const specialsList = [];
+        let totalCount = 0;
+        let paisesCount = 0;
+
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            let nums = [];
+            if (isMissing) {
+                const [start, end] = info.range;
+                const owned = albumData[code] || [];
+                for (let i = start; i <= end; i++) {
+                    if (!owned.includes(i)) nums.push(i);
+                }
+            } else {
+                const dupes = duplicatesData[code] || {};
+                nums = Object.entries(dupes).filter(([,q]) => q > 0).map(([n]) => Number(n)).sort((a,b) => a-b);
+            }
+
+            const entry = { code, name: info.name, group: info.group, nums };
+            totalCount += nums.length;
+            if (nums.length > 0) paisesCount++;
+
+            if (info.group === '—') { specialsList.push(entry); }
+            else {
+                if (!groupsMap[info.group]) groupsMap[info.group] = [];
+                groupsMap[info.group].push(entry);
+            }
+        }
+
+        // Monta HTML
+        let groupsHtml = '';
+        for (const [g, countries] of Object.entries(groupsMap)) {
+            let block = `<div class="group-block"><div class="group-label">Grupo ${g}</div>`;
+            for (const c of countries) {
+                block += `<div class="country-row"><div class="country-name">${c.name} <span class="code">${c.code}</span><span class="qty">${c.nums.length}</span></div>`;
+                if (c.nums.length > 0) {
+                    block += `<div class="nums">${c.nums.map(n => '<div class="n">'+n+'</div>').join('')}</div>`;
+                } else {
+                    block += `<div class="empty-country">—</div>`;
+                }
+                block += `</div>`;
+            }
+            block += `</div>`;
+            groupsHtml += block;
+        }
+
+        // Especiais
+        if (specialsList.some(s => s.nums.length > 0)) {
+            let block = `<div class="group-block"><div class="group-label">🏆 Especiais</div>`;
+            for (const c of specialsList) {
+                if (c.nums.length > 0) {
+                    block += `<div class="country-row"><div class="country-name">${c.name} <span class="code">${c.code}</span><span class="qty">${c.nums.length}</span></div>`;
+                    block += `<div class="nums">${c.nums.map(n => '<div class="n">'+n+'</div>').join('')}</div></div>`;
+                }
+            }
+            block += `</div>`;
+            groupsHtml += block;
+        }
+
+        const today = new Date().toLocaleDateString('pt-BR');
+        const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${title}</title><style>${style.replace(/VAR_COLOR/g, color)}</style></head><body>
+            <button class="print-btn no-print" onclick="window.print()">🖨️ Imprimir</button>
+            <div class="title-bar"><h1>${title}</h1><div class="subtitle">${subtitle}</div></div>
+            <div class="stats-row">
+                <div class="stat-box"><div class="num">${totalCount}</div><div class="label">figurinhas</div></div>
+                <div class="stat-box"><div class="num">${paisesCount}</div><div class="label">países</div></div>
+                <div class="stat-box"><div class="num">${Object.keys(groupsMap).length}</div><div class="label">grupos</div></div>
+            </div>
+            <div class="groups-grid">${groupsHtml}</div>
+            <div class="footer">Gerado em ${today} • eduardopiccoli.github.io/worldcup</div>
+        </body></html>`;
+
+        const win = window.open('', '_blank');
+        win.document.write(html);
+        win.document.close();
+    }
+
+    // ==================== UTILS ====================
+    function showToast(msg, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.style.background = type === 'warning' ? '#f4a261' : '#2d6a4f';
+        toast.style.color = '#fff';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function populateCountrySelects() {
+        const selects = ['manual-country', 'ocr-country', 'dupes-country'];
+        selects.forEach(id => {
+            const select = document.getElementById(id);
+            select.innerHTML = '<option value="">Selecione o país...</option>';
+            let currentGroup = '';
+            for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+                if (info.group !== currentGroup) {
+                    currentGroup = info.group;
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = currentGroup === '—' ? '🏆 Especiais' : `Grupo ${currentGroup}`;
+                    select.appendChild(optgroup);
+                }
+                const opt = document.createElement('option');
+                opt.value = code;
+                opt.textContent = `${info.name} (${code})`;
+                select.lastElementChild.appendChild(opt);
+            }
+        });
+    }
+
+    // ==================== INIT ====================
+    // Migração: CUR -> CUW (correção do código ISO de Curaçao)
+    if (albumData['CUR'] !== undefined) {
+        albumData['CUW'] = albumData['CUR'];
+        delete albumData['CUR'];
+        saveData();
+    }
+    if (albumData['CUW'] === undefined) albumData['CUW'] = [];
+    if (!duplicatesData['CUW']) duplicatesData['CUW'] = {};
+    if (duplicatesData['CUR']) { duplicatesData['CUW'] = duplicatesData['CUR']; delete duplicatesData['CUR']; }
+
+    populateCountrySelects();
+    updateStats();
+    </script>
+</body>
+</html>

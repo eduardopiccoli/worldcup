@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Repetidas Copa 2026 - One Page</title>
+<style>
+@page { size: A4 portrait; margin: 5mm; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1a2e;
+    color: #fff;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 6mm;
+}
+.title-bar {
+    text-align: center;
+    padding: 4mm 0;
+    border-bottom: 2px solid #f4a261;
+    margin-bottom: 4mm;
+}
+.title-bar h1 {
+    font-size: 14pt;
+    color: #f4a261;
+    margin-bottom: 2mm;
+}
+.title-bar .subtitle {
+    font-size: 8pt;
+    color: #aaa;
+}
+.stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 12mm;
+    margin-bottom: 4mm;
+    padding: 3mm;
+    background: #16213e;
+    border-radius: 3mm;
+}
+.stat-box {
+    text-align: center;
+}
+.stat-box .num {
+    font-size: 16pt;
+    font-weight: 700;
+    color: #f4a261;
+}
+.stat-box .label {
+    font-size: 7pt;
+    color: #aaa;
+    margin-top: 1mm;
+}
+.groups-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2mm;
+}
+.group-block {
+    background: #16213e;
+    border-radius: 2mm;
+    padding: 2mm;
+    border-top: 2px solid #f4a261;
+}
+.group-label {
+    font-size: 7pt;
+    font-weight: 700;
+    color: #f4a261;
+    text-align: center;
+    margin-bottom: 1.5mm;
+    text-transform: uppercase;
+}
+.country-row {
+    margin-bottom: 1.5mm;
+}
+.country-name {
+    font-size: 6pt;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin-bottom: 0.5mm;
+}
+.country-name .code {
+    color: #888;
+}
+.country-name .qty {
+    float: right;
+    color: #f4a261;
+    font-size: 5.5pt;
+}
+.nums {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8mm;
+}
+.n {
+    background: #0f3460;
+    border: 0.5px solid #f4a261;
+    border-radius: 1mm;
+    width: 5.5mm;
+    height: 5.5mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5pt;
+    font-weight: 600;
+    color: #f4a261;
+}
+.empty-country {
+    font-size: 5.5pt;
+    color: #555;
+    font-style: italic;
+}
+.footer {
+    text-align: center;
+    margin-top: 3mm;
+    padding-top: 2mm;
+    border-top: 1px solid #333;
+    font-size: 6.5pt;
+    color: #666;
+}
+@media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .no-print { display: none !important; }
+}
+.print-btn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #f4a261;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    z-index: 100;
+}
+</style>
+</head>
+<body>
+<button class="print-btn no-print" onclick="window.print()">🖨️ Imprimir</button>
+
+<div class="title-bar">
+    <h1>🔄 FIGURINHAS REPETIDAS — Copa 2026</h1>
+    <div class="subtitle">Disponíveis para troca</div>
+</div>
+
+<div class="stats-row" id="stats-row"></div>
+<div class="groups-grid" id="groups-grid"></div>
+<div class="footer" id="footer"></div>
+
+<script>
+const data = {
+    "FWC": { name: "FIFA World Cup", group: "—", nums: [1,4,5,6,9] },
+    "MUS": { name: "FIFA Museum", group: "—", nums: [1,2,6] },
+    "MEX": { name: "México", group: "A", nums: [2,3,4,5,6,7,8,9,10,11,12,15,17,19] },
+    "RSA": { name: "África do Sul", group: "A", nums: [1,2,3,4,7,8,9,10,11,12,13,14,16,17,19,20] },
+    "KOR": { name: "Coreia do Sul", group: "A", nums: [1,2,3,4,6,9,10,15,18,19,20] },
+    "CZE": { name: "Tchéquia", group: "A", nums: [2,3,11,16,19,20] },
+    "CAN": { name: "Canadá", group: "B", nums: [1,2,6,7,8,9,18] },
+    "BIH": { name: "Bósnia", group: "B", nums: [1,3,4,5,11,14,15,16,18] },
+    "QAT": { name: "Qatar", group: "B", nums: [1,2,4,6,11,12,15,16,17,20] },
+    "SUI": { name: "Suíça", group: "B", nums: [3,5,6,8,11,16,19] },
+    "BRA": { name: "Brasil", group: "C", nums: [1,3,7,9,11,12,13,14,16,18,20] },
+    "MAR": { name: "Marrocos", group: "C", nums: [2,3,7,9,10,11,12,13,14,15,16,17,18,19] },
+    "HAI": { name: "Haiti", group: "C", nums: [1,3,6,7,9,10,11,15,16,18,19] },
+    "SCO": { name: "Escócia", group: "C", nums: [1,2,3,4,5,6,8,9,10,12,13,14,15,18,19] },
+    "USA": { name: "EUA", group: "D", nums: [2,3,4,7,8,11,12,15,18,20] },
+    "PAR": { name: "Paraguai", group: "D", nums: [1,2,4,5,6,8,9,10,12,13,14,15,17,18,19] },
+    "AUS": { name: "Austrália", group: "D", nums: [8,9,12,13,14,18] },
+    "TUR": { name: "Turquia", group: "D", nums: [3,5,7,9,11,12,14,16,20] },
+    "GER": { name: "Alemanha", group: "E", nums: [2,6,10,13,14,15] },
+    "CUW": { name: "Curaçao", group: "E", nums: [] },
+    "CIV": { name: "Costa do Marfim", group: "E", nums: [1,3,5,6,10,12,15,18,19,20] },
+    "ECU": { name: "Equador", group: "E", nums: [4,10,13,17,20] },
+    "NED": { name: "Holanda", group: "F", nums: [2,4,6,8,10,12,15,16,20] },
+    "JPN": { name: "Japão", group: "F", nums: [4,7,8,9,12,17] },
+    "SWE": { name: "Suécia", group: "F", nums: [2,3,5,6,7,13,18,20] },
+    "TUN": { name: "Tunísia", group: "F", nums: [1,2,5,8,9,12,14,16,20] },
+    "BEL": { name: "Bélgica", group: "G", nums: [1,2,3,4,5,9,13,18] },
+    "EGY": { name: "Egito", group: "G", nums: [1,3,6,7,10,11,15,16,20] },
+    "IRN": { name: "Irã", group: "G", nums: [1,2,3,10,13,19,20] },
+    "NZL": { name: "Nova Zelândia", group: "G", nums: [2,6,8,9,12,14,15,18,19] },
+    "ESP": { name: "Espanha", group: "H", nums: [3,6,7,9,10,15,19] },
+    "CPV": { name: "Cabo Verde", group: "H", nums: [2,3,4,6,8,9,10,11,17,18] },
+    "KSA": { name: "Arábia Saudita", group: "H", nums: [4,5,8,9,10] },
+    "URU": { name: "Uruguai", group: "H", nums: [1,5,6,8,9,14,15,17,18,19,20] },
+    "FRA": { name: "França", group: "I", nums: [1,4,8,12,13,17] },
+    "SEN": { name: "Senegal", group: "I", nums: [2,3,4,7,8,11,14,15,16,20] },
+    "IRQ": { name: "Iraque", group: "I", nums: [3,4,9,13,14,17,18] },
+    "NOR": { name: "Noruega", group: "I", nums: [4,5,9,11,12,13,14,18] },
+    "ARG": { name: "Argentina", group: "J", nums: [1,2,10,13,15,19] },
+    "ALG": { name: "Argélia", group: "J", nums: [3,5,7,11,16,18,20] },
+    "AUT": { name: "Áustria", group: "J", nums: [2,3,6,7,8,11,12,13,16,17,18,19,20] },
+    "JOR": { name: "Jordânia", group: "J", nums: [3,4,6,15,19] },
+    "POR": { name: "Portugal", group: "K", nums: [1,2,3,4,8,12,15,17,19] },
+    "COD": { name: "Congo DR", group: "K", nums: [4,5,9,12,17] },
+    "UZB": { name: "Uzbequistão", group: "K", nums: [2,3,4,8,9,10,13,14,16,17,18,19] },
+    "COL": { name: "Colômbia", group: "K", nums: [5,8,9,12,13,14,16,17,18] },
+    "ENG": { name: "Inglaterra", group: "L", nums: [1,3,4,5,7,9,10,13,15,16,18,20] },
+    "CRO": { name: "Croácia", group: "L", nums: [1,13,14,15,18] },
+    "GHA": { name: "Gana", group: "L", nums: [1,3,5,9,10,17,18,20] },
+    "PAN": { name: "Panamá", group: "L", nums: [6,8,11,14,15,17] }
+};
+
+// Calcula stats
+let totalRep = 0, paisesComRep = 0;
+for (const [code, info] of Object.entries(data)) {
+    totalRep += info.nums.length;
+    if (info.nums.length > 0) paisesComRep++;
+}
+
+document.getElementById('stats-row').innerHTML = `
+    <div class="stat-box"><div class="num">${totalRep}</div><div class="label">figurinhas repetidas</div></div>
+    <div class="stat-box"><div class="num">${paisesComRep}</div><div class="label">países com repetidas</div></div>
+    <div class="stat-box"><div class="num">12</div><div class="label">grupos</div></div>
+`;
+
+// Agrupa por grupo
+const groups = {};
+const specials = [];
+for (const [code, info] of Object.entries(data)) {
+    if (info.group === '—') { specials.push({code, ...info}); continue; }
+    if (!groups[info.group]) groups[info.group] = [];
+    groups[info.group].push({code, ...info});
+}
+
+const grid = document.getElementById('groups-grid');
+
+for (const [g, countries] of Object.entries(groups)) {
+    const block = document.createElement('div');
+    block.className = 'group-block';
+    let html = `<div class="group-label">Grupo ${g}</div>`;
+
+    for (const c of countries) {
+        html += `<div class="country-row">`;
+        html += `<div class="country-name">${c.name} <span class="code">${c.code}</span><span class="qty">${c.nums.length}</span></div>`;
+        if (c.nums.length > 0) {
+            html += `<div class="nums">${c.nums.map(n => `<div class="n">${n}</div>`).join('')}</div>`;
+        } else {
+            html += `<div class="empty-country">—</div>`;
+        }
+        html += `</div>`;
+    }
+
+    block.innerHTML = html;
+    grid.appendChild(block);
+}
+
+// Especiais no final
+if (specials.some(s => s.nums.length > 0)) {
+    const block = document.createElement('div');
+    block.className = 'group-block';
+    let html = `<div class="group-label">🏆 Especiais</div>`;
+    for (const c of specials) {
+        html += `<div class="country-row">`;
+        html += `<div class="country-name">${c.name} <span class="code">${c.code}</span><span class="qty">${c.nums.length}</span></div>`;
+        if (c.nums.length > 0) {
+            html += `<div class="nums">${c.nums.map(n => `<div class="n">${n}</div>`).join('')}</div>`;
+        }
+        html += `</div>`;
+    }
+    block.innerHTML = html;
+    grid.appendChild(block);
+}
+
+const today = new Date().toLocaleDateString('pt-BR');
+document.getElementById('footer').textContent = `Gerado em ${today} • eduardopiccoli.github.io/worldcup`;
+</script>
+</body>
+</html>

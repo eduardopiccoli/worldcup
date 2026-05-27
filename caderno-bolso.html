@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Caderno de Bolso - Álbum Copa 2026</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 8mm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 7.5pt;
+            color: #000;
+            background: #fff;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 8mm;
+            page-break-after: always;
+            columns: 4;
+            column-gap: 5mm;
+        }
+
+        .page:last-child {
+            page-break-after: auto;
+        }
+
+        .header-title {
+            column-span: all;
+            text-align: center;
+            font-size: 12pt;
+            font-weight: bold;
+            margin-bottom: 3mm;
+            padding-bottom: 2mm;
+            border-bottom: 2px solid #8b1538;
+            color: #8b1538;
+        }
+
+        .group-header {
+            background: #8b1538;
+            color: #fff;
+            padding: 1.5mm 3mm;
+            font-size: 7.5pt;
+            font-weight: bold;
+            margin-top: 2.5mm;
+            margin-bottom: 1mm;
+            break-inside: avoid;
+            border-radius: 1mm;
+        }
+
+        .country {
+            break-inside: avoid;
+            margin-bottom: 1.5mm;
+            border: 0.5px solid #ccc;
+            border-left: 2px solid #2d6a4f;
+            padding: 1.5mm;
+            background: #fafffe;
+        }
+
+        .country-name {
+            font-weight: bold;
+            font-size: 7pt;
+            margin-bottom: 1mm;
+            border-bottom: 0.5px solid #ddd;
+            padding-bottom: 0.5mm;
+            color: #1a3a6e;
+        }
+
+        .numbers-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5mm;
+        }
+
+        .num-box {
+            width: 7mm;
+            height: 7mm;
+            border: 0.5px solid #aaa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6pt;
+            background: #f5f5f5;
+            border-radius: 0.5mm;
+        }
+
+        .instructions {
+            column-span: all;
+            margin-top: 4mm;
+            padding: 3mm;
+            border: 1px dashed #8b1538;
+            font-size: 8pt;
+            text-align: center;
+            color: #555;
+            background: #fff8f9;
+            border-radius: 2mm;
+        }
+
+        .cut-line {
+            column-span: all;
+            border-top: 1px dashed #aaa;
+            margin: 3mm 0;
+            position: relative;
+        }
+
+        .cut-line::before {
+            content: "✂ cortar aqui";
+            position: absolute;
+            top: -3mm;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            padding: 0 2mm;
+            font-size: 6pt;
+            color: #999;
+        }
+
+        /* Versão pocket: 2 páginas A4 para dobrar ao meio */
+        .pocket-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 8mm;
+            page-break-after: always;
+            columns: 4;
+            column-gap: 5mm;
+        }
+
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+        }
+
+        .print-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #222;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 6px;
+            z-index: 100;
+        }
+
+        .print-btn:hover {
+            background: #444;
+        }
+
+        .format-toggle {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            display: flex;
+            gap: 8px;
+        }
+
+        .format-toggle button {
+            background: #eee;
+            border: 1px solid #ccc;
+            padding: 8px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .format-toggle button.active {
+            background: #222;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn no-print" onclick="window.print()">🖨️ Imprimir</button>
+    <div class="format-toggle no-print">
+        <button class="active" onclick="setFormat('pocket')">📱 Bolso</button>
+        <button onclick="setFormat('full')">📄 A4 Completo</button>
+        <button onclick="setFormat('missing')">❌ Só Faltantes</button>
+    </div>
+    <div id="import-area" class="no-print" style="display:none; position:fixed; top:60px; left:10px; z-index:100; background:#fff; border:1px solid #ccc; border-radius:8px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.15); max-width:300px;">
+        <p style="font-size:12px; margin-bottom:8px; color:#333;"><strong>Seus dados do álbum:</strong></p>
+        <p id="import-status" style="font-size:11px; color:#666; margin-bottom:8px;"></p>
+        <button onclick="document.getElementById('json-input').click()" style="background:#2d6a4f; color:#fff; border:none; padding:8px 14px; border-radius:6px; font-size:12px; cursor:pointer;">📂 Importar JSON</button>
+        <input type="file" id="json-input" accept=".json" style="display:none" onchange="loadJSON(this)">
+    </div>
+
+    <div id="content"></div>
+
+    <script>
+    const ALBUM_STRUCTURE = {
+        // Grupo A
+        "MEX": { name: "México", group: "A", range: [1, 20] },
+        "RSA": { name: "África do Sul", group: "A", range: [1, 20] },
+        "KOR": { name: "Coreia do Sul", group: "A", range: [1, 20] },
+        "CZE": { name: "Tchéquia", group: "A", range: [1, 20] },
+        // Grupo B
+        "CAN": { name: "Canadá", group: "B", range: [1, 20] },
+        "BIH": { name: "Bósnia e Herzegovina", group: "B", range: [1, 20] },
+        "QAT": { name: "Qatar", group: "B", range: [1, 20] },
+        "SUI": { name: "Suíça", group: "B", range: [1, 20] },
+        // Grupo C
+        "BRA": { name: "Brasil", group: "C", range: [1, 20] },
+        "MAR": { name: "Marrocos", group: "C", range: [1, 20] },
+        "HAI": { name: "Haiti", group: "C", range: [1, 20] },
+        "SCO": { name: "Escócia", group: "C", range: [1, 20] },
+        // Grupo D
+        "USA": { name: "Estados Unidos", group: "D", range: [1, 20] },
+        "PAR": { name: "Paraguai", group: "D", range: [1, 20] },
+        "AUS": { name: "Austrália", group: "D", range: [1, 20] },
+        "TUR": { name: "Turquia", group: "D", range: [1, 20] },
+        // Grupo E
+        "GER": { name: "Alemanha", group: "E", range: [1, 20] },
+        "CUW": { name: "Curaçao", group: "E", range: [1, 20] },
+        "CIV": { name: "Costa do Marfim", group: "E", range: [1, 20] },
+        "ECU": { name: "Equador", group: "E", range: [1, 20] },
+        // Grupo F
+        "NED": { name: "Holanda", group: "F", range: [1, 20] },
+        "JPN": { name: "Japão", group: "F", range: [1, 20] },
+        "SWE": { name: "Suécia", group: "F", range: [1, 20] },
+        "TUN": { name: "Tunísia", group: "F", range: [1, 20] },
+        // Grupo G
+        "BEL": { name: "Bélgica", group: "G", range: [1, 20] },
+        "EGY": { name: "Egito", group: "G", range: [1, 20] },
+        "IRN": { name: "Irã", group: "G", range: [1, 20] },
+        "NZL": { name: "Nova Zelândia", group: "G", range: [1, 20] },
+        // Grupo H
+        "ESP": { name: "Espanha", group: "H", range: [1, 20] },
+        "CPV": { name: "Cabo Verde", group: "H", range: [1, 20] },
+        "KSA": { name: "Arábia Saudita", group: "H", range: [1, 20] },
+        "URU": { name: "Uruguai", group: "H", range: [1, 20] },
+        // Grupo I
+        "FRA": { name: "França", group: "I", range: [1, 20] },
+        "SEN": { name: "Senegal", group: "I", range: [1, 20] },
+        "IRQ": { name: "Iraque", group: "I", range: [1, 20] },
+        "NOR": { name: "Noruega", group: "I", range: [1, 20] },
+        // Grupo J
+        "ARG": { name: "Argentina", group: "J", range: [1, 20] },
+        "ALG": { name: "Argélia", group: "J", range: [1, 20] },
+        "AUT": { name: "Áustria", group: "J", range: [1, 20] },
+        "JOR": { name: "Jordânia", group: "J", range: [1, 20] },
+        // Grupo K
+        "POR": { name: "Portugal", group: "K", range: [1, 20] },
+        "COD": { name: "Congo DR", group: "K", range: [1, 20] },
+        "UZB": { name: "Uzbequistão", group: "K", range: [1, 20] },
+        "COL": { name: "Colômbia", group: "K", range: [1, 20] },
+        // Grupo L
+        "ENG": { name: "Inglaterra", group: "L", range: [1, 20] },
+        "CRO": { name: "Croácia", group: "L", range: [1, 20] },
+        "GHA": { name: "Gana", group: "L", range: [1, 20] },
+        "PAN": { name: "Panamá", group: "L", range: [1, 20] },
+        // Especiais
+        "FWC": { name: "FIFA World Cup (Intro)", group: "—", range: [1, 9] },
+        "MUS": { name: "FIFA Museum", group: "—", range: [1, 11] }
+    };
+
+    let currentFormat = 'pocket';
+    let albumData = null;
+
+    // Tenta carregar do localStorage (mesmo que o index.html usa)
+    function loadAlbumData() {
+        const saved = localStorage.getItem('album-copa-2026');
+        if (saved) {
+            albumData = JSON.parse(saved);
+            return true;
+        }
+        return false;
+    }
+
+    function loadJSON(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                albumData = JSON.parse(e.target.result);
+                document.getElementById('import-status').textContent = '✅ JSON carregado! Clique em "Só Faltantes" novamente.';
+                document.getElementById('import-status').style.color = '#2d6a4f';
+                render();
+            } catch (err) {
+                document.getElementById('import-status').textContent = '❌ Arquivo inválido.';
+                document.getElementById('import-status').style.color = '#c23152';
+            }
+        };
+        reader.readAsText(file);
+        input.value = '';
+    }
+
+    function getMissingNumbers(code, info) {
+        if (!albumData || !albumData[code]) return null;
+        const [start, end] = info.range;
+        const owned = albumData[code] || [];
+        const missing = [];
+        for (let i = start; i <= end; i++) {
+            if (!owned.includes(i)) missing.push(i);
+        }
+        return missing;
+    }
+
+    function setFormat(format) {
+        currentFormat = format;
+        document.querySelectorAll('.format-toggle button').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+
+        const importArea = document.getElementById('import-area');
+
+        if (format === 'missing') {
+            if (!albumData) {
+                const loaded = loadAlbumData();
+                if (!loaded) {
+                    importArea.style.display = 'block';
+                    document.getElementById('import-status').textContent = 'Nenhum dado encontrado no navegador. Importe o JSON exportado do app.';
+                    return;
+                }
+            }
+            importArea.style.display = 'none';
+        } else {
+            importArea.style.display = 'none';
+        }
+
+        render();
+    }
+
+    function render() {
+        const content = document.getElementById('content');
+
+        if (currentFormat === 'pocket') {
+            renderPocket(content);
+        } else if (currentFormat === 'missing') {
+            renderMissing(content);
+        } else {
+            renderFull(content);
+        }
+    }
+
+    function renderMissing(container) {
+        let html = '<div class="pocket-page">';
+        html += '<div style="column-span: all; text-align: center; font-size: 11pt; font-weight: bold; margin-bottom: 2mm; padding-bottom: 2mm; border-bottom: 2px solid #c23152; color: #c23152;">❌ FALTANTES - Copa 2026</div>';
+
+        let totalMissing = 0;
+        let totalStickers = 0;
+        const groups = getGroups();
+        let hasContent = false;
+
+        for (const group of groups) {
+            let groupHtml = '';
+            let groupHasMissing = false;
+
+            for (const [code, info] of group.countries) {
+                const missing = getMissingNumbers(code, info);
+                if (missing && missing.length > 0) {
+                    const [start, end] = info.range;
+                    const total = end - start + 1;
+                    // Só mostra se não está 100% faltando (ou seja, tem pelo menos 1)
+                    groupHasMissing = true;
+                    totalMissing += missing.length;
+                    totalStickers += total;
+
+                    groupHtml += '<div class="country" style="border-left-color: #c23152;">';
+                    groupHtml += `<div class="country-name" style="color: #8b1538;">${info.name} (${code}) — faltam ${missing.length}</div>`;
+                    groupHtml += '<div class="numbers-grid">';
+                    for (const num of missing) {
+                        groupHtml += `<div class="num-box" style="background: #fff0f0; border-color: #e8a0a0;">${num}</div>`;
+                    }
+                    groupHtml += '</div></div>';
+                }
+            }
+
+            if (groupHasMissing) {
+                html += `<div class="group-header" style="background: #c23152;">${group.label}</div>`;
+                html += groupHtml;
+                hasContent = true;
+            }
+        }
+
+        if (!hasContent) {
+            html += '<div style="column-span: all; text-align: center; padding: 20mm; font-size: 14pt; color: #2d6a4f;">🎉 Parabéns! Álbum completo!</div>';
+        } else {
+            html += `<div style="column-span: all; text-align: center; margin-top: 4mm; padding: 2mm; font-size: 8pt; color: #666; border-top: 1px solid #ddd;">Total faltantes: ${totalMissing} figurinhas</div>`;
+        }
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function renderPocket(container) {
+        // Formato bolso: 2 páginas A4, 2 colunas cada — dobra ao meio vira caderninho
+        let html = '';
+        const groups = getGroups();
+        
+        // Dividir em 2 páginas: metade dos grupos em cada
+        const half = Math.ceil(groups.length / 2);
+        const pages = [groups.slice(0, half), groups.slice(half)];
+
+        pages.forEach((pageGroups, pageIdx) => {
+            html += '<div class="pocket-page">';
+            
+            if (pageIdx === 0) {
+                html += '<div style="column-span: all; text-align: center; font-size: 11pt; font-weight: bold; margin-bottom: 3mm; padding-bottom: 2mm; border-bottom: 2px solid #8b1538; color: #8b1538;">⚽ COPA 2026 - Controle de Figurinhas</div>';
+                html += '<div style="column-span: all; text-align: center; font-size: 7.5pt; color: #666; margin-bottom: 3mm;">Marque com ✓ as figurinhas que você já tem</div>';
+            } else {
+                html += '<div style="column-span: all; text-align: center; font-size: 9pt; font-weight: bold; margin-bottom: 3mm; padding-bottom: 1mm; border-bottom: 1px solid #8b1538; color: #8b1538;">⚽ COPA 2026 - Página 2</div>';
+            }
+
+            for (const group of pageGroups) {
+                html += `<div class="group-header">${group.label}</div>`;
+                for (const [code, info] of group.countries) {
+                    html += renderCountry(code, info);
+                }
+            }
+
+            html += '</div>';
+        });
+
+        container.innerHTML = html;
+    }
+
+    function renderFull(container) {
+        let html = '<div class="page">';
+        html += '<div class="header-title">⚽ COPA 2026 - Controle de Figurinhas (Caderno de Bolso)</div>';
+        html += '<div class="instructions">Marque com ✓ ou X as figurinhas que você já tem. Dobre no meio para caber no bolso!</div>';
+
+        const groups = getGroups();
+
+        for (const group of groups) {
+            html += `<div class="group-header">${group.label}</div>`;
+            for (const [code, info] of group.countries) {
+                html += renderCountry(code, info);
+            }
+        }
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function renderCountry(code, info) {
+        const [start, end] = info.range;
+        let html = '<div class="country">';
+        html += `<div class="country-name">${info.name} (${code})</div>`;
+        html += '<div class="numbers-grid">';
+        for (let i = start; i <= end; i++) {
+            html += `<div class="num-box">${i}</div>`;
+        }
+        html += '</div></div>';
+        return html;
+    }
+
+    function getGroups() {
+        const groups = [];
+        const specials = [];
+        let currentGroup = '';
+        let currentCountries = [];
+
+        for (const [code, info] of Object.entries(ALBUM_STRUCTURE)) {
+            if (info.group === '—') {
+                // Acumula especiais para o final
+                if (specials.length === 0 || specials[specials.length - 1].label !== '🏆 Especiais') {
+                    specials.push({ label: '🏆 ESPECIAIS', countries: [] });
+                }
+                specials[specials.length - 1].countries.push([code, info]);
+                continue;
+            }
+
+            if (info.group !== currentGroup) {
+                if (currentCountries.length > 0) {
+                    groups.push({ label: `GRUPO ${currentGroup}`, countries: currentCountries });
+                }
+                currentGroup = info.group;
+                currentCountries = [];
+            }
+            currentCountries.push([code, info]);
+        }
+        if (currentCountries.length > 0) {
+            groups.push({ label: `GRUPO ${currentGroup}`, countries: currentCountries });
+        }
+
+        // Especiais no final
+        return [...groups, ...specials];
+    }
+
+    // Tenta carregar dados ao iniciar
+    loadAlbumData();
+    render();
+    </script>
+</body>
+</html>
