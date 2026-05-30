@@ -554,7 +554,7 @@
         "TUR": { name: "Turquia", group: "D", range: [1, 20] },
         // Grupo E
         "GER": { name: "Alemanha", group: "E", range: [1, 20] },
-        "CUR": { name: "Curaçao", group: "E", range: [1, 20] },
+        "CUW": { name: "Curaçao", group: "E", range: [1, 20] },
         "CIV": { name: "Costa do Marfim", group: "E", range: [1, 20] },
         "ECU": { name: "Equador", group: "E", range: [1, 20] },
         // Grupo F
@@ -1327,29 +1327,29 @@
     // ==================== ONE PAGE REPORTS ====================
     function openOnePage(type) {
         const style = `
-            @page{size:A4 portrait;margin:5mm}
+            @page{size:A4 portrait;margin:8mm}
             *{margin:0;padding:0;box-sizing:border-box}
-            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1a1a2e;color:#fff;width:210mm;min-height:297mm;margin:0 auto;padding:6mm}
-            .title-bar{text-align:center;padding:4mm 0;border-bottom:2px solid VAR_COLOR;margin-bottom:4mm}
-            .title-bar h1{font-size:14pt;color:VAR_COLOR;margin-bottom:2mm}
-            .title-bar .subtitle{font-size:8pt;color:#aaa}
-            .stats-row{display:flex;justify-content:center;gap:12mm;margin-bottom:4mm;padding:3mm;background:#16213e;border-radius:3mm}
+            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fff;color:#222;width:194mm;height:281mm;margin:0 auto;padding:0;overflow:hidden}
+            .title-bar{text-align:center;padding:2mm 0;border-bottom:1.5px solid VAR_COLOR;margin-bottom:2mm}
+            .title-bar h1{font-size:11pt;color:VAR_COLOR;margin-bottom:1mm}
+            .title-bar .subtitle{font-size:7pt;color:#666}
+            .stats-row{display:flex;justify-content:center;gap:10mm;margin-bottom:2mm;padding:2mm;background:#f5f5f5;border-radius:2mm;border:0.5px solid #ddd}
             .stat-box{text-align:center}
-            .stat-box .num{font-size:16pt;font-weight:700;color:VAR_COLOR}
-            .stat-box .label{font-size:7pt;color:#aaa;margin-top:1mm}
-            .groups-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2mm}
-            .group-block{background:#16213e;border-radius:2mm;padding:2mm;border-top:2px solid VAR_COLOR}
-            .group-label{font-size:7pt;font-weight:700;color:VAR_COLOR;text-align:center;margin-bottom:1.5mm;text-transform:uppercase}
-            .country-row{margin-bottom:1.5mm}
-            .country-name{font-size:6pt;font-weight:600;color:#e0e0e0;margin-bottom:0.5mm}
-            .country-name .code{color:#888}
-            .country-name .qty{float:right;color:VAR_COLOR;font-size:5.5pt}
-            .nums{display:flex;flex-wrap:wrap;gap:0.8mm}
-            .n{background:#0f3460;border:0.5px solid VAR_COLOR;border-radius:1mm;width:5.5mm;height:5.5mm;display:flex;align-items:center;justify-content:center;font-size:5pt;font-weight:600;color:VAR_COLOR}
-            .empty-country{font-size:5.5pt;color:#555;font-style:italic}
-            .footer{text-align:center;margin-top:3mm;padding-top:2mm;border-top:1px solid #333;font-size:6.5pt;color:#666}
+            .stat-box .num{font-size:13pt;font-weight:700;color:VAR_COLOR}
+            .stat-box .label{font-size:6pt;color:#666;margin-top:0.5mm}
+            .groups-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5mm}
+            .group-block{background:#fafafa;border-radius:1.5mm;padding:1.5mm;border-top:2px solid VAR_COLOR;border:0.5px solid #e0e0e0;border-top:2px solid VAR_COLOR}
+            .group-label{font-size:6.5pt;font-weight:700;color:VAR_COLOR;text-align:center;margin-bottom:1mm;text-transform:uppercase}
+            .country-row{margin-bottom:1mm}
+            .country-name{font-size:5.5pt;font-weight:600;color:#333;margin-bottom:0.3mm}
+            .country-name .code{color:#999}
+            .country-name .qty{float:right;color:VAR_COLOR;font-size:5pt;font-weight:700}
+            .nums{display:flex;flex-wrap:wrap;gap:0.5mm}
+            .n{background:#fff;border:0.5px solid VAR_COLOR;border-radius:0.8mm;width:5mm;height:5mm;display:flex;align-items:center;justify-content:center;font-size:4.5pt;font-weight:700;color:VAR_COLOR}
+            .empty-country{font-size:5pt;color:#aaa;font-style:italic}
+            .footer{text-align:center;margin-top:2mm;padding-top:1mm;border-top:1px solid #ddd;font-size:6pt;color:#999}
             @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}
-            .print-btn{position:fixed;top:10px;right:10px;background:VAR_COLOR;color:#000;border:none;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;border-radius:6px;z-index:100}
+            .print-btn{position:fixed;top:10px;right:10px;background:VAR_COLOR;color:#fff;border:none;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;border-radius:6px;z-index:100}
         `;
 
         const isMissing = type === 'missing';
